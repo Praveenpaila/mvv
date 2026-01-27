@@ -1,0 +1,145 @@
+/* ===== NAVBAR ===== */
+.nav {
+  height: 70px;
+  width: 100%;
+  background-color: #e6f0ff; /* light blue */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  box-sizing: border-box;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+/* ===== LOGO ===== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #1e293b;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.logo img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+/* ===== CENTER LINKS ===== */
+.links {
+  display: flex;
+  gap: 28px;
+}
+
+.links a {
+  text-decoration: none;
+  color: #1e293b;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.links a:hover {
+  color: #2563eb;
+}
+
+/* ===== RIGHT ACTIONS ===== */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* ICONS */
+.icon {
+  font-size: 22px;
+  color: #1e293b;
+  text-decoration: none;
+}
+
+.icon:hover {
+  color: #2563eb;
+}
+
+/* ===== PROFILE ===== */
+.profile {
+  position: relative;
+  font-size: 22px;
+  color: #1e293b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* ===== DROPDOWN ===== */
+.dropdown {
+  position: absolute;
+  top: 20px;
+  right: 0;
+  background-color: #ffffff;
+  border-radius: 6px;
+  min-width: 140px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: none;
+  flex-direction: column;
+  padding: 8px 0;
+  z-index: 1000;
+}
+
+/* KEEP DROPDOWN OPEN */
+.profile:hover .dropdown,
+.dropdown:hover {
+  display: flex;
+}
+
+/* DROPDOWN LINKS */
+.dropdown a {
+  padding: 10px 16px;
+  text-decoration: none;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.dropdown a:hover {
+  background-color: #e6f0ff;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  width: 260px;
+}
+
+.search input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .links {
+    display: none;
+  }
+
+  .search {
+    width: 180px;
+  }
+}

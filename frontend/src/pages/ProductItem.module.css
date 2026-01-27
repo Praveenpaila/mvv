@@ -1,0 +1,164 @@
+.main {
+  padding: 20px;
+}
+
+/* PAGE */
+.page {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.container {
+  display: flex;
+  gap: 30px;
+}
+
+/* LEFT */
+.left {
+  position: relative;
+  flex: 1;
+}
+
+.left img {
+  width: 100%;
+  height: 360px;
+  object-fit: contain;
+  background: #f6f6f6;
+  border-radius: 10px;
+}
+
+.outOfStock {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #e53935;
+  color: white;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+/* RIGHT */
+.right {
+  flex: 1;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.rating {
+  font-size: 14px;
+  color: #16a34a;
+  margin-bottom: 12px;
+}
+
+.pack {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.pack button {
+  border: 1px solid #16a34a;
+  background: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.price {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.stock {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+.addBtn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.qtyBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #16a34a;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.qtyBox button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #16a34a;
+}
+
+.qtyBox span {
+  font-weight: 600;
+}
+
+.disabledBtn {
+  background: #ccc;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: not-allowed;
+}
+
+.description {
+  margin-top: 20px;
+}
+
+.description h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+/* RELATED */
+.related {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+/* NOT FOUND */
+.notFound {
+  text-align: center;
+  margin-top: 50px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .left img {
+    height: 260px;
+  }
+}

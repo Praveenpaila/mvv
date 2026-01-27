@@ -1,0 +1,77 @@
+.container {
+  max-width: 420px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* CARD */
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00c853, #64dd17);
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.email {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* DETAILS */
+.details {
+  border-top: 1px dashed #ddd;
+  padding-top: 1rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.row span:first-child {
+  color: #777;
+}
+
+.role {
+  text-transform: capitalize;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+/* STATES */
+.loading,
+.error {
+  text-align: center;
+  margin-top: 3rem;
+  color: #555;
+}

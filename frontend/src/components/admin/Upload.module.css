@@ -1,0 +1,106 @@
+.page {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 40px;
+  background-color: #f8fafc;
+}
+
+.card {
+  width: 440px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* IMAGE INPUT (lightweight) */
+.imageBox {
+  position: relative;
+  height: 140px; /* 🔥 MUCH SMALLER */
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 18px;
+  background: #f9fafb;
+}
+
+.imageBox img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.imageHint {
+  position: absolute;
+  bottom: 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Remove icon */
+.remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove:hover {
+  background: #dc2626;
+}
+
+/* FORM */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form input,
+.form textarea {
+  padding: 9px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form textarea {
+  resize: none;
+  height: 70px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+/* BUTTON */
+.submit {
+  margin-top: 8px;
+  padding: 11px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background: #1d4ed8;
+}

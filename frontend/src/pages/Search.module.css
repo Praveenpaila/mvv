@@ -1,0 +1,43 @@
+.page {
+  padding: 100px 20px 40px; /* top padding for fixed navbar */
+  max-width: 1200px;
+  margin: auto;
+  box-sizing: border-box;
+}
+
+/* TITLE */
+.heading {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.heading span {
+  color: #2563eb;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+}
+
+/* EMPTY STATE */
+.empty {
+  margin-top: 40px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .page {
+    padding: 90px 16px 30px;
+  }
+
+  .heading {
+    font-size: 18px;
+  }
+}

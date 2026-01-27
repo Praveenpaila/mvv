@@ -1,0 +1,95 @@
+:root {
+  --primary: #e6f0ff; /* Light Blue Background */
+  --accent: #3b82f6; /* Soft Blue Accent */
+  --dark: #1e293b; /* Dark Text */
+  --gray: #64748b; /* Muted Text */
+  --light: #ffffff;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  background-color: var(--primary);
+  color: var(--dark);
+  padding: 40px 60px 20px;
+  box-sizing: border-box;
+}
+
+/* ===== TOP SECTION ===== */
+.top {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+/* ===== BRAND ===== */
+.brand img {
+  width: 45px;
+  margin-bottom: 10px;
+}
+
+.brand h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--dark);
+}
+
+.brand p {
+  font-size: 14px;
+  margin-top: 6px;
+  color: var(--gray);
+}
+
+/* ===== LINKS ===== */
+.links h4,
+.contact h4 {
+  margin-bottom: 12px;
+  font-size: 15px;
+  color: var(--dark);
+}
+
+.links a {
+  display: block;
+  text-decoration: none;
+  color: var(--gray);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.links a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* ===== CONTACT ===== */
+.contact p {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: var(--gray);
+}
+
+/* ===== BOTTOM ===== */
+.bottom {
+  border-top: 1px solid rgba(30, 41, 59, 0.15);
+  padding-top: 15px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--gray);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .top {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .top {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    padding: 30px 20px 15px;
+  }
+}

@@ -1,0 +1,76 @@
+.page {
+  display: flex;
+  justify-content: center;
+  padding: 100px 20px 40px;
+  max-width: 1200px;
+  margin: auto;
+  box-sizing: border-box;
+}
+
+/* LEFT CARD */
+.left {
+  width: 100%;
+  max-width: 480px;
+}
+
+.form {
+  background-color: #ffffff;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+/* INPUT GROUPS */
+.name,
+.bf {
+  display: flex;
+  gap: 12px;
+}
+
+.form input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.form input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* SUBMIT BUTTON */
+.submit {
+  width: 100%;
+  padding: 12px;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit:hover {
+  background-color: #1d4ed8;
+}
+
+/* RIGHT (EMPTY / FUTURE USE) */
+.right {
+  flex: 1;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .name,
+  .bf {
+    flex-direction: column;
+  }
+
+  .form {
+    padding: 20px;
+  }
+}

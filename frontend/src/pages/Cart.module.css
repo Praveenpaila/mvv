@@ -1,0 +1,175 @@
+/* ===== PAGE LAYOUT ===== */
+.cartPage {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+@media (max-width: 900px) {
+  .cartPage {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== LEFT ===== */
+.left {
+  background: #fff;
+}
+
+/* ===== RIGHT (CHECKOUT PANEL) ===== */
+.right {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  position: sticky;
+  top: 20px;
+}
+
+/* ===== EMPTY ===== */
+.empty {
+  text-align: center;
+  color: #6b7280;
+  margin-top: 40px;
+}
+
+/* ===== ADDRESS SECTION ===== */
+.right h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* ADDRESS CARD */
+.checkAddress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition:
+    border 0.2s ease,
+    background 0.2s ease;
+}
+
+.checkAddress:hover {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+
+/* SELECTED */
+.selected {
+  border-color: #16a34a;
+  background: #ecfdf5;
+}
+
+/* LEFT PART */
+.addressLeft {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* CUSTOM RADIO */
+.radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #9ca3af;
+  margin-top: 4px;
+}
+
+.radioChecked {
+  border-color: #16a34a;
+  background: #16a34a;
+}
+
+/* ADDRESS TEXT */
+.addressCard h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.addressCard p {
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+/* DELETE ICON */
+.remove {
+  color: #ef4444;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.remove:hover {
+  color: #dc2626;
+}
+
+/* ===== ADD ADDRESS BUTTON ===== */
+.addBtn {
+  width: 100%;
+  margin: 12px 0;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px dashed #2563eb;
+  background: transparent;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  background: #eff6ff;
+}
+
+/* ===== PAYMENT SELECT ===== */
+.select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+/* ===== SUMMARY ===== */
+.summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ===== CHECKOUT BUTTON ===== */
+.checkout {
+  width: 100%;
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.checkout:hover {
+  background: #15803d;
+}
+
+.checkout:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
