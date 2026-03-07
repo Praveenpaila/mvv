@@ -1,0 +1,76 @@
+/* Modern Professional Dark Glassmorphism Navigation Bar Styles */
+.nav {
+  height: 80px;
+  width: 100%;
+  background: rgba(31, 38, 135, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+/* LEFT */
+.left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand {
+  color: #fff;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 16px #000a;
+}
+
+.panel {
+  background: linear-gradient(90deg, #7f9cf5 0%, #2563eb 100%);
+  color: #fff;
+  font-size: 20px;
+  padding: 4px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px #0002;
+}
+
+/* RIGHT */
+.right {
+  display: flex;
+  align-items: center;
+}
+
+.logout {
+  background: linear-gradient(90deg, #f87171 0%, #ef4444 100%);
+  border: none;
+  color: #fff;
+  padding: 10px 22px;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 2px 8px #0002;
+  transition: background 0.18s;
+}
+.logout:hover {
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+  .brand {
+    display: none;
+  }
+
+  .panel {
+    font-size: 12px;
+  }
+}

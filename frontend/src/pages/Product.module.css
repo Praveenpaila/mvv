@@ -1,34 +1,60 @@
 .card {
-  background: #ffffff;
-  border-radius: 8px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
+/* IMAGE AREA */
 .image {
   width: 100%;
-  height: 220px;
-  object-fit: cover;
+  height: 200px;
+
+  object-fit: contain; /* IMPORTANT: no cropping */
+  background-color: #f8fafc; /* soft canvas for images */
+  padding: 16px;
+
+  box-sizing: border-box;
 }
 
+/* INFO */
 .info {
-  padding: 12px;
+  padding: 12px 14px 14px;
   text-align: center;
 }
 
+/* NAME */
 .name {
-  font-size: 16px;
-  margin-bottom: 6px;
-  color: #1e293b;
+  font-size: 15px;
+  font-weight: 600;
+  color: #020617;
+  margin-bottom: 4px;
+
+  line-height: 1.3;
 }
 
+/* PRICE */
 .price {
+  font-size: 14px;
   font-weight: 600;
-  color: #111;
+  color: #111827;
+}
+
+/* MOBILE TWEAK */
+@media (max-width: 480px) {
+  .image {
+    height: 180px;
+    padding: 12px;
+  }
 }

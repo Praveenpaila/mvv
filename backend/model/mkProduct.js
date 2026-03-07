@@ -47,6 +47,11 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    merchantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "mkUser",
+      default: "696bb2d2f9fa73aeebf08673",
+    },
   },
   {
     timestamps: true,

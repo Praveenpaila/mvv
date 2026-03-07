@@ -1,12 +1,14 @@
 .container {
-  max-width: 1000px;
+  /* max-width: 1000px; */
   margin: 2rem auto;
   padding: 0 1rem;
+  width: 1100px;
+  height: 500px;
 }
 
 .heading {
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   margin-bottom: 1.2rem;
 }
 
@@ -27,18 +29,22 @@
 }
 
 .status {
-  font-size: 0.8rem;
+  font-size: 1.5rem;
   font-weight: 600;
   text-transform: capitalize;
 }
 
 .date {
-  font-size: 0.7rem;
+  font-size: 1rem;
   color: #777;
 }
 
 .amount {
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 600;
+  position: relative;
+  /* top: 13px; */
+  color: green;
 }
 
 /* ITEMS */
@@ -53,7 +59,7 @@
   grid-template-columns: 40px 1fr auto;
   align-items: center;
   gap: 0.6rem;
-  font-size: 0.85rem;
+  font-size: 1rem;
   padding: 0.4rem 0;
 }
 
@@ -67,8 +73,8 @@
 
 /* ADDRESS */
 .address {
-  margin-top: 0.6rem;
-  font-size: 0.75rem;
+  margin-top: 1rem;
+  font-size: 1rem;
   color: #555;
 }
 
@@ -80,7 +86,7 @@
 }
 
 .actions select {
-  padding: 0.3rem 0.6rem;
+  padding: 0.5rem 0.9rem;
   border-radius: 6px;
   font-size: 0.75rem;
 }
@@ -104,6 +110,181 @@
 
 .cancelled {
   color: #c62828;
+}
+
+/* MERCHANT STATUS */
+.merchantStatusSection {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  border-top: 1px dashed #ddd;
+}
+
+.merchantStatusList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.merchantStatusItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.merchantStatusBadge {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.merchantStatusItem.confirmed .merchantStatusBadge {
+  color: #2e7d32;
+}
+
+.merchantStatusItem.pending .merchantStatusBadge {
+  color: #ff8f00;
+}
+
+.merchantSummary {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  color: #4a5568;
+}
+
+/* DELIVERY ASSIGNMENT */
+.deliverySection {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed #ddd;
+}
+
+.deliveryWaiting {
+  padding: 0.75rem;
+  background: #fff3cd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #856404;
+  text-align: center;
+  font-weight: 500;
+}
+
+.noDeliveryPersons {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.deliveryAssigned {
+  padding: 0.75rem;
+  background: #e8f5e9;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #2e7d32;
+}
+
+.deliveryStatus {
+  margin-left: 0.5rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.deliveryAssign {
+  display: flex;
+  align-items: center;
+}
+
+.assignDeliveryBtn {
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.assignDeliveryBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.assignForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.deliverySelect {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  font-size: 0.9rem;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.deliverySelect:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.assignActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.assignBtn {
+  padding: 0.6rem 1.2rem;
+  background: #667eea;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.assignBtn:hover:not(:disabled) {
+  background: #5568d3;
+  transform: translateY(-1px);
+}
+
+.assignBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  padding: 0.6rem 1.2rem;
+  background: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelBtn:hover {
+  background: #cbd5e0;
 }
 
 /* LOADING */

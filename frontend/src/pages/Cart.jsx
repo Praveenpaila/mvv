@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Title } from "../components/Title";
 import DispayCartItems from "./DispayCartItems";
@@ -14,24 +14,41 @@ const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const cart = useSelector((state) => state.cart.cart);
-  const addresses = useSelector((state) => state.address.address);
+  const cartRaw = useSelector((state) => state.cart.cart);
+  const cart = useMemo(() => (Array.isArray(cartRaw) ? cartRaw : []), [cartRaw]);
+  const addresses = useSelector((state) => state.address.address) || [];
 
   const [checkOutAddress, setCheckoutAddress] = useState(null);
-  const [priceMap, setPriceMap] = useState({});
-  const [totalSum, setTotalSum] = useState(0);
   const [paymentType, setPaymentType] = useState("cash");
+  const [loading, setLoading] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [itemPrices, setItemPrices] = useState({}); // Track prices by item ID
 
-  const onPriceChange = (productId, price, quantity) => {
-    setPriceMap((prev) => {
-      const updated = { ...prev };
-      if (quantity === 0) delete updated[productId];
-      else updated[productId] = price * quantity;
-      setTotalSum(Object.values(updated).reduce((a, b) => a + b, 0));
-      return updated;
-    });
-  };
+  /* ================= TOTAL CALCULATION ================= */
+  useEffect(() => {
+    if (!Array.isArray(cart)) return;
 
+    let hasAllPrices = true;
+    const sum = cart.reduce((acc, item) => {
+      const price = itemPrices[item._id];
+      const quantity = Number(item?.quantity) || 0;
+
+      // Check if price is available
+      if (price === undefined) {
+        hasAllPrices = false;
+        return acc;
+      }
+
+      return acc + price * quantity;
+    }, 0);
+
+    // Only update total if we have prices for all items or partial prices exist
+    if (hasAllPrices || Object.keys(itemPrices).length > 0) {
+      setTotal(sum);
+    }
+  }, [cart, itemPrices]);
+
+  /* ================= LOAD ADDRESS ================= */
   useEffect(() => {
     const getAddress = async () => {
       try {
@@ -40,14 +57,16 @@ const Cart = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
-        dispatch(addAddress(res.data.address));
+        dispatch(addAddress(res.data.address || []));
       } catch {
-        toast.error("Server error");
+        toast.error("Failed to load addresses");
       }
     };
+
     if (localStorage.getItem("token")) getAddress();
   }, [dispatch]);
 
+  /* ================= REMOVE ADDRESS ================= */
   const onRemoveHandler = async (id) => {
     if (checkOutAddress?._id === id)
       return toast.error("Selected address cannot be removed");
@@ -66,17 +85,42 @@ const Cart = () => {
     }
   };
 
+  /* ================= LOAD RAZORPAY ================= */
+  const loadScript = () =>
+    new Promise((resolve) => {
+      if (window.Razorpay) return resolve(true); // prevent multiple loads
+
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+
+  /* ================= HANDLE ORDER ================= */
   const handleOrder = async () => {
-    if (!checkOutAddress) return toast.error("Please select address");
-    if (cart.length === 0) return toast.error("Cart is empty");
+    if (!checkOutAddress) return toast.error("Select address");
+    if (cart.length === 0) return toast.error("Cart empty");
+    if (loading) return;
+
+    setLoading(true);
 
     try {
-      await api.post(
-        "/order",
+      const validItems = cart.filter(item => item && item._id);
+      if (validItems.length === 0) {
+        toast.error("No valid products in cart");
+        setLoading(false);
+        return;
+      }
+      const orderRes = await api.post(
+        "/order", // ✅ correct route
         {
-          items: cart,
+          items: validItems.map((item) => ({
+            _id: item._id,
+            quantity: item.quantity,
+          })),
           addressId: checkOutAddress._id,
-          totalAmount: totalSum,
+          totalAmount: total, // ✅ send totalAmount
           paymentType,
         },
         {
@@ -85,10 +129,90 @@ const Cart = () => {
           },
         },
       );
-      dispatch(clearCart());
-      navigate("/buy-now");
-    } catch {
-      toast.error("Order failed");
+
+      const { orderId } = orderRes.data;
+
+      if (!orderId) {
+        throw new Error("Order creation failed");
+      }
+
+      // totalAmount is received from backend
+
+      if (paymentType === "cash") {
+        dispatch(clearCart());
+        toast.success("Order placed successfully");
+        navigate("/buy-now");
+        setLoading(false);
+        return;
+      }
+
+      const scriptLoaded = await loadScript();
+      if (!scriptLoaded) {
+        toast.error("Razorpay failed to load");
+        setLoading(false);
+        return;
+      }
+
+      const paymentRes = await api.post(
+        "/payment/create-order",
+        { orderId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      const options = {
+        key: "rzp_test_SHwgaPZxmn05yq",
+        amount: Number(paymentRes.data.amount),
+        currency: "INR",
+        order_id: paymentRes.data.id,
+        name: "MK Gold Coast",
+        description: "Order Payment",
+        prefill: {
+          name: checkOutAddress?.firstName || "Guest",
+          email: checkOutAddress?.email || "guest@example.com",
+          contact: String(checkOutAddress?.phoneNumber || "9999999999"),
+        },
+        handler: async function (response) {
+          try {
+            const verifyRes = await api.post(
+              "/payment/verify",
+              { ...response, orderId },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              },
+            );
+
+            if (verifyRes.data.success) {
+              dispatch(clearCart());
+              toast.success("Payment successful");
+              navigate("/buy-now");
+            } else {
+              toast.error("Payment verification failed");
+            }
+          } catch {
+            toast.error("Verification error");
+          } finally {
+            setLoading(false);
+          }
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+
+      rzp.on("payment.failed", function () {
+        toast.error("Payment failed. Try again.");
+        setLoading(false);
+      });
+
+      rzp.open();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Order failed");
+      setLoading(false);
     }
   };
 
@@ -99,18 +223,28 @@ const Cart = () => {
         {cart.length === 0 ? (
           <p className={styles.empty}>Your cart is empty</p>
         ) : (
-          cart.map((item) => (
-            <DispayCartItems
-              key={item._id}
-              item={item}
-              onPriceChange={onPriceChange}
-            />
-          ))
+          <>
+            {cart.filter(item => item && item._id).map((item) => (
+              <DispayCartItems
+                key={item._id}
+                item={item}
+                onPriceChange={(id, price) => {
+                  // Update price tracking whenever product data changes
+                  setItemPrices((prev) => {
+                    const newPrices = { ...prev, [id]: price };
+                    // Log for debugging
+                    console.debug("Item prices updated:", newPrices);
+                    return newPrices;
+                  });
+                }}
+              />
+            ))}
+          </>
         )}
       </div>
 
       <div className={styles.right}>
-        <h3>Check your address</h3>
+        <h3>Select Address</h3>
 
         {addresses.map((addr) => (
           <div
@@ -126,13 +260,8 @@ const Cart = () => {
                   checkOutAddress?._id === addr._id ? styles.radioChecked : ""
                 }`}
               />
-
               <div className={styles.addressCard}>
                 <h4>{addr.firstName}</h4>
-                <p>
-                  {addr.firstName} {addr.secondName}, {addr.block}, {addr.floor}
-                  , {addr.roomNo}
-                </p>
                 <p>{addr.phoneNumber}</p>
               </div>
             </div>
@@ -162,15 +291,15 @@ const Cart = () => {
 
         <div className={styles.summary}>
           <span>Total Amount</span>
-          <strong>₹{totalSum}</strong>
+          <strong>₹{total}</strong>
         </div>
 
         <button
           className={styles.checkout}
-          disabled={!checkOutAddress || cart.length === 0}
+          disabled={!checkOutAddress || cart.length === 0 || loading}
           onClick={handleOrder}
         >
-          Proceed to Checkout
+          {loading ? "Processing..." : "Proceed to Checkout"}
         </button>
       </div>
     </div>

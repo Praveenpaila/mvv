@@ -1,5 +1,39 @@
 const mongoose = require("mongoose");
 
+const orderItemSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "mkProduct",
+    required: true,
+  },
+
+  merchantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "mkUser",
+    required: true,
+  },
+
+  name: {
+    type: String,
+    required: true,
+  },
+
+  image: {
+    type: String,
+    required: true,
+  },
+
+  quantity: {
+    type: Number,
+    required: true,
+  },
+
+  price: {
+    type: Number,
+    required: true,
+  },
+});
+
 const orderSchema = new mongoose.Schema(
   {
     /* ===== USER ===== */
@@ -10,13 +44,17 @@ const orderSchema = new mongoose.Schema(
     },
 
     /* ===== ORDER ITEMS ===== */
-    items: {
-      type: Object,
-    },
+    items: [orderItemSchema], // ← IMPORTANT FIX
 
     /* ===== ADDRESS (SNAPSHOT) ===== */
     address: {
-      type: Object,
+      firstName: String,
+      secondName: String,
+      email: String,
+      block: Number,
+      floor: Number,
+      roomNo: Number,
+      phoneNumber: Number,
     },
 
     /* ===== PAYMENT ===== */

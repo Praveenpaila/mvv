@@ -22,6 +22,15 @@ const SideBar = () => {
         <Link to="/admin/manage" className={styles.link}>
           Manage Items
         </Link>
+        <Link to="/admin/bulkManage" className={styles.link}>
+          Bulk manage
+        </Link>
+        <Link to="/admin/authorize-users" className={styles.link}>
+          Add DeliveryPerson
+        </Link>
+        <Link to="/admin/users" className={styles.link}>
+          Authorization
+        </Link>
       </nav>
     </aside>
   );

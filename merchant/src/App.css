@@ -1,0 +1,24 @@
+/* Clean Modern Light Theme for Merchant App */
+body {
+  background: #f4f6fb;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  color: #222;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  min-height: 100vh;
+  background: #f4f6fb;
+  display: flex;
+  flex-direction: column;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #e5e7eb;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}

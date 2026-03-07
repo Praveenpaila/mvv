@@ -48,15 +48,18 @@ const DisplayProducts = ({ item }) => {
       <ToastContainer autoClose={2000} />
 
       {/* IMAGE */}
+      {/* IMAGE */}
       <Link to={`/product/${item.category}/${item._id}`}>
-        <img
-          src={item.image}
-          alt={item.name}
-          className={styles.image}
-          onError={(e) => {
-            e.target.src = "/placeholder.png";
-          }}
-        />
+        <div className={styles.imageWrapper}>
+          <img
+            src={item.image}
+            alt={item.name}
+            className={styles.image}
+            onError={(e) => {
+              e.target.src = "/placeholder.png";
+            }}
+          />
+        </div>
       </Link>
 
       {/* OUT OF STOCK BADGE */}

@@ -1,0 +1,27 @@
+.scannerBox {
+  margin: 2rem auto 1rem auto;
+  padding: 1rem;
+  background: #f0f4f8;
+  border-radius: 8px;
+  max-width: 320px;
+  text-align: center;
+}
+.scannerBox input {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #bbb;
+  margin-right: 0.5rem;
+}
+.scannerBox button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #2d7be5;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.info {
+  color: #888;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}

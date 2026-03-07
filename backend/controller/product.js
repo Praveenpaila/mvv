@@ -2,18 +2,32 @@ const CategoryModel = require("../model/mkCategory");
 const ProductModel = require("../model/mkProduct");
 const UserModel = require("../model/mkUser");
 const OrderModel = require("../model/mkOrder");
+const MerchantOrder = require("../model/mkMerchantOrders");
 const AddressModel = require("../model/mkAddress");
 const cloudinary = require("../config/cloudinary");
 const fs = require("fs");
 const CartModel = require("../model/mkCart");
 const path = require("path");
 const csv = require("csv-parser");
+const { sendEmail } = require("../utils/email");
+const {
+  buildOrderPlacedEmail,
+  buildOrderStatusEmail,
+} = require("../utils/orderEmail");
+const mongoose = require("mongoose");
 // bulk
-
 // BASE PROJECT PATH (ENDS WITH /)
 
 // Root folder where mkGold exists
 const BASE_IMAGE_DIR = "C:/Users/paila praveen/OneDrive/Desktop/project/";
+
+exports.getProducts = async (req, res) => {
+  try {
+    res.json({ message: "Products working" });
+  } catch (err) {
+    res.status(500).json({ message: "Error" });
+  }
+};
 
 exports.bulkUploadProducts = async (req, res) => {
   try {
@@ -27,12 +41,20 @@ exports.bulkUploadProducts = async (req, res) => {
     const rows = [];
     const errors = [];
 
+    // 🔹 Preload all merchants once (important optimization)
+    const merchants = await mongoose.model("mkUser").find({}, "_id");
+
+    if (!merchants.length) {
+      return res.status(400).json({
+        success: false,
+        message: "No merchants found in database",
+      });
+    }
+
     fs.createReadStream(req.file.path)
       .pipe(csv())
       .on("data", (row) => rows.push(row))
       .on("end", async () => {
-        console.log(`CSV rows loaded: ${rows.length}`);
-
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i];
 
@@ -47,29 +69,37 @@ exports.bulkUploadProducts = async (req, res) => {
               discount,
               stock,
               image,
+              merchantId,
             } = row;
 
-            // 🔴 STRICT VALIDATION (matches schema)
             if (!name || !category || !packSize || !price || !mrp || !image) {
               throw new Error("Missing required CSV fields");
             }
 
-            // mkGold/products/apple.png
+            // 🔹 Decide merchantId
+            let finalMerchantId;
+
+            if (merchantId && mongoose.Types.ObjectId.isValid(merchantId)) {
+              finalMerchantId = merchantId;
+            } else {
+              // Assign random merchant
+              const randomIndex = Math.floor(Math.random() * merchants.length);
+              finalMerchantId = merchants[randomIndex]._id;
+            }
+
             const relativePath = image.replace(/\\/g, "/");
             const absolutePath = path.join(BASE_IMAGE_DIR, relativePath);
 
             if (!fs.existsSync(absolutePath)) {
-              throw new Error(`Image not found`);
+              throw new Error("Image not found");
             }
 
-            // 🔹 Upload image to Cloudinary
             const upload = await cloudinary.uploader.upload(absolutePath, {
               folder: "mk-products",
             });
 
             const imageUrl = upload.secure_url;
 
-            // 🔹 Find or create category
             let cat = await CategoryModel.findOne({
               categoryName: category.trim(),
             });
@@ -77,11 +107,10 @@ exports.bulkUploadProducts = async (req, res) => {
             if (!cat) {
               cat = await CategoryModel.create({
                 categoryName: category.trim(),
-                image: imageUrl, // first product image
+                image: imageUrl,
               });
             }
 
-            // 🔹 Create product USING CSV DATA
             await ProductModel.create({
               name: name.trim(),
               description: description?.trim() || "",
@@ -92,11 +121,8 @@ exports.bulkUploadProducts = async (req, res) => {
               discount: Number(discount || 0),
               stock: Number(stock || 0),
               image: imageUrl,
+              merchantId: finalMerchantId, // ← dynamic
             });
-
-            if ((i + 1) % 10 === 0) {
-              console.log(`Uploaded ${i + 1}/${rows.length}`);
-            }
           } catch (err) {
             errors.push({
               product: row.name || "unknown",
@@ -121,7 +147,6 @@ exports.bulkUploadProducts = async (req, res) => {
     });
   }
 };
-
 /* ================= HOME ================= */
 exports.home = async (req, res) => {
   try {
@@ -203,6 +228,7 @@ exports.addProduct = async (req, res) => {
       discount,
       stock,
       image: imageUrl,
+      merchantId: req.user.userId,
     });
 
     return res.status(201).json({
@@ -221,15 +247,27 @@ exports.addProduct = async (req, res) => {
 exports.getSingleProductDetails = async (req, res) => {
   try {
     const { id } = req.params;
+    if (!id || id === "undefined" || id === "null") {
+      return res.status(400).json({
+        success: false,
+        message: "Product ID is required and must be valid.",
+      });
+    }
     const product = await ProductModel.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found.",
+      });
+    }
     return res.status(200).json({
-      sucess: true,
+      success: true,
       product,
     });
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: err || "error in loading the single product",
+      message: err?.message || "error in loading the single product",
     });
   }
 };
@@ -238,7 +276,10 @@ exports.getSingleProductDetails = async (req, res) => {
 
 exports.cart = async (req, res) => {
   try {
-    const cart = await CartModel.find({ user: req.user.userId });
+    const cart = await CartModel.find({ user: req.user.userId }).populate(
+      "productId",
+    );
+
     return res.status(200).json({
       success: true,
       cart,
@@ -255,7 +296,15 @@ exports.cart = async (req, res) => {
 exports.addToCart = async (req, res) => {
   try {
     const { id, quantity } = req.body;
+
     const product = await ProductModel.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
     const cartItem = await CartModel.findOne({
       user: req.user.userId,
       productId: id,
@@ -265,11 +314,8 @@ exports.addToCart = async (req, res) => {
       if (quantity === 0) {
         await CartModel.findByIdAndDelete(cartItem._id);
       } else {
-        await CartModel.findByIdAndUpdate(
-          cartItem._id,
-          { quantity },
-          { new: true },
-        );
+        cartItem.quantity = quantity;
+        await cartItem.save();
       }
     } else {
       if (quantity > 0) {
@@ -277,8 +323,6 @@ exports.addToCart = async (req, res) => {
           user: req.user.userId,
           productId: id,
           quantity,
-          image: product.image,
-          price: product.price,
         });
       }
     }
@@ -290,7 +334,7 @@ exports.addToCart = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: err.message || "Error updating cart",
+      message: err.message,
     });
   }
 };
@@ -308,7 +352,6 @@ exports.profile = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: err.message,
-      user,
     });
   }
 };
@@ -316,20 +359,21 @@ exports.profile = async (req, res) => {
 /* ================= USER ORDERS ================= */
 exports.orders = async (req, res) => {
   try {
-    const orders = await OrderModel.find({
-      user: req.user.userId,
-    }).sort({ createdAt: -1 }); // latest first
-    // const orders = await OrderModel.find();
+    const userId = req.user.userId;
+
+    const orders = await OrderModel.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .select("-__v"); // remove unnecessary field
+    console.log("hojlafjl");
     return res.status(200).json({
       success: true,
-      // user: req.user.userId,
       count: orders.length,
       orders,
     });
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: err.message,
+      message: err.message || "Failed to fetch orders",
     });
   }
 };
@@ -350,9 +394,64 @@ exports.order = async (req, res) => {
 /* ================= ADDRESS ================= */
 exports.addAddress = async (req, res) => {
   try {
+    const { firstName, secondName, email, block, floor, roomNo, phoneNumber } =
+      req.body || {};
+
+    // Basic validation + friendly messages
+    if (!firstName || !secondName || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter your name and email",
+      });
+    }
+
+    const toNumber = (value) => {
+      const n =
+        typeof value === "number" ? value : Number(String(value).trim());
+      return Number.isFinite(n) ? n : null;
+    };
+
+    const blockNum = toNumber(block);
+    if (blockNum === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Block must be a number",
+      });
+    }
+
+    const floorNum = toNumber(floor);
+    if (floorNum === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Floor must be a number",
+      });
+    }
+
+    const roomNoNum = toNumber(roomNo);
+    if (roomNoNum === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Room number must be a number",
+      });
+    }
+
+    const phoneNum = toNumber(phoneNumber);
+    if (phoneNum === null) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number must contain digits only",
+      });
+    }
+
     await AddressModel.create({
       user: req.user.userId,
-      ...req.body,
+      firstName: String(firstName).trim(),
+      secondName: String(secondName).trim(),
+      email: String(email).trim(),
+      block: blockNum,
+      floor: floorNum,
+      roomNo: roomNoNum,
+      phoneNumber: phoneNum,
     });
 
     return res.status(200).json({
@@ -360,9 +459,16 @@ exports.addAddress = async (req, res) => {
       message: "Address added",
     });
   } catch (err) {
+    // Handle mongoose validation errors nicely
+    if (err?.name === "ValidationError" || err?.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Please check your address details and try again",
+      });
+    }
     return res.status(500).json({
       success: false,
-      message: err.message,
+      message: "Server error while saving address",
     });
   }
 };
@@ -413,6 +519,7 @@ exports.postOrder = async (req, res) => {
 
     // 🔹 Build order items snapshot
     const orderItems = {};
+    let calculatedTotal = 0;
 
     for (const i of items) {
       const product = await ProductModel.findById(i._id);
@@ -439,6 +546,9 @@ exports.postOrder = async (req, res) => {
         image: product.image,
       };
 
+      // 🔹 calculate total for validation
+      calculatedTotal += product.price * i.quantity;
+
       // 🔹 reduce stock
       product.stock -= i.quantity;
       await product.save();
@@ -453,20 +563,45 @@ exports.postOrder = async (req, res) => {
       });
     }
 
+    // ✅ SECURITY: Validate totalAmount matches calculated amount (allow 1% variance for rounding)
+    const variance = Math.abs(calculatedTotal - totalAmount) / calculatedTotal;
+    if (variance > 0.01) {
+      console.warn(
+        `[Order] Total mismatch: calculated=${calculatedTotal}, provided=${totalAmount}`,
+      );
+      return res.status(400).json({
+        success: false,
+        message: "Order total verification failed",
+      });
+    }
+
     const order = await OrderModel.create({
       user,
       items: orderItems,
       address,
-      totalAmount,
+      totalAmount: calculatedTotal,
       paymentType,
-      paymentStatus: paymentType === "cash" ? "pending" : "paid",
+      paymentStatus: paymentType === "cash" ? "pending" : "pending",
+      orderStatus: "placed",
     });
     await CartModel.deleteMany({ user: req.user.userId });
+
+    // Send order confirmation / invoice email (do not block order success)
+    try {
+      const userDoc = await UserModel.findById(user).select("email userName");
+      const toEmail = (address?.email || userDoc?.email || "").trim();
+      const userName = userDoc?.userName || address?.firstName;
+      const mail = buildOrderPlacedEmail({ order, userName });
+      await sendEmail({ to: toEmail, ...mail });
+    } catch (e) {
+      console.warn("[email] order placed email failed:", e?.message || e);
+    }
 
     return res.status(201).json({
       success: true,
       message: "Order placed successfully",
       orderId: order._id,
+      totalAmount: order.totalAmount,
     });
   } catch (err) {
     return res.status(500).json({
@@ -479,25 +614,23 @@ exports.postOrder = async (req, res) => {
 exports.search = async (req, res) => {
   try {
     const { query } = req.params;
-    const all = await ProductModel.find();
-    const products = all.filter((i) =>
-      i.name.toLowerCase().includes(query.toLowerCase()),
-    );
 
-    // const filtered = products.filter((item) =>
-    //   item.name.toLowerCase().includes(query.toLowerCase()),
-    // );
-    res.status(200).json({
+    const products = await ProductModel.find({
+      name: { $regex: query, $options: "i" },
+    }).lean();
+
+    return res.status(200).json({
       success: true,
       products,
     });
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: err || "error occured at search",
+      message: err.message,
     });
   }
 };
+
 exports.changeStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -518,6 +651,25 @@ exports.changeStatus = async (req, res) => {
       });
     }
 
+    // Order can only be set to "confirmed" when ALL merchants have checked their checkbox
+    if (orderStatus === "confirmed") {
+      const merchantOrders = await MerchantOrder.find({ orderId: id });
+      if (merchantOrders.length > 0) {
+        const allConfirmed = merchantOrders.every(
+          (mo) => mo.confirmed === true
+        );
+        if (!allConfirmed) {
+          const confirmedCount = merchantOrders.filter(
+            (mo) => mo.confirmed === true
+          ).length;
+          return res.status(400).json({
+            success: false,
+            message: `Cannot set to confirmed: only ${confirmedCount} of ${merchantOrders.length} merchants have confirmed. Wait for all merchants to check their confirmation.`,
+          });
+        }
+      }
+    }
+
     // 🔹 decide payment status based on order status
     let paymentStatus;
 
@@ -528,6 +680,11 @@ exports.changeStatus = async (req, res) => {
     } else {
       paymentStatus = "pending";
     }
+
+    const existingOrder = await OrderModel.findById(id).populate(
+      "user",
+      "email userName",
+    );
 
     const updatedOrder = await OrderModel.findByIdAndUpdate(
       id,
@@ -540,6 +697,30 @@ exports.changeStatus = async (req, res) => {
         success: false,
         message: "Order not found",
       });
+    }
+
+    // Send status update email (do not block response)
+    try {
+      const populated =
+        existingOrder?.user?.email || existingOrder?.user?.userName
+          ? existingOrder
+          : await OrderModel.findById(id).populate("user", "email userName");
+
+      const toEmail = (
+        populated?.user?.email ||
+        updatedOrder?.address?.email ||
+        ""
+      ).trim();
+      const userName =
+        populated?.user?.userName || updatedOrder?.address?.firstName;
+      const mail = buildOrderStatusEmail({
+        order: updatedOrder,
+        userName,
+        previousStatus: populated?.orderStatus,
+      });
+      await sendEmail({ to: toEmail, ...mail });
+    } catch (e) {
+      console.warn("[email] order status email failed:", e?.message || e);
     }
 
     return res.status(200).json({
@@ -559,7 +740,6 @@ exports.changeStatus = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-
     const {
       name,
       description,
@@ -651,6 +831,174 @@ exports.deleteProduct = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: err.message,
+    });
+  }
+};
+
+exports.bulkManage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "CSV file is required",
+      });
+    }
+
+    const filePath = req.file.path;
+    const merchantId = req.user.userId;
+
+    const rows = [];
+    const errors = [];
+    const notFound = [];
+    let updatedCount = 0;
+
+    // ===============================
+    // Read CSV
+    // ===============================
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on("data", (row) => {
+          const cleanRow = {};
+
+          Object.keys(row).forEach((key) => {
+            const cleanKey = key.trim().replace("\ufeff", "");
+            cleanRow[cleanKey] = row[key];
+          });
+
+          rows.push(cleanRow);
+        })
+        .on("end", resolve)
+        .on("error", reject);
+    });
+
+    if (!rows.length) {
+      fs.unlinkSync(filePath);
+      return res.status(400).json({
+        success: false,
+        message: "CSV is empty",
+      });
+    }
+
+    // ===============================
+    // Process Each Row
+    // ===============================
+    for (const row of rows) {
+      const id = row.id?.trim();
+      const price = row.price?.trim();
+      const quantity = row.quantity?.trim();
+
+      if (!id || !price || !quantity) {
+        errors.push({ row, message: "Missing fields" });
+        continue;
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        errors.push({ id, message: "Invalid ObjectId format" });
+        continue;
+      }
+
+      const parsedPrice = Number(price);
+      const parsedQuantity = Number(quantity);
+
+      if (isNaN(parsedPrice) || isNaN(parsedQuantity)) {
+        errors.push({ id, message: "Price/Quantity must be numbers" });
+        continue;
+      }
+
+      // 🔐 Secure update — only update merchant's own product
+      const updatedProduct = await ProductModel.findOneAndUpdate(
+        {
+          _id: id,
+          merchantId: merchantId,
+        },
+        {
+          $set: {
+            price: parsedPrice,
+            stock: parsedQuantity,
+          },
+        },
+        { new: true },
+      );
+
+      if (!updatedProduct) {
+        notFound.push(id);
+        continue;
+      }
+
+      updatedCount++;
+    }
+
+    // Remove uploaded file
+    fs.unlinkSync(filePath);
+
+    return res.status(200).json({
+      success: true,
+      message: "Bulk update completed",
+      updatedCount,
+      notFound,
+      errors,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+exports.getMerchantOrders = async (req, res) => {
+  try {
+    const merchantId = req.user.userId;
+
+    // Get merchant-specific orders
+    const merchantOrders = await MerchantOrder.find({
+      merchantId: new mongoose.Types.ObjectId(merchantId),
+    })
+      .populate("orderId") // get full order details
+      .sort({ createdAt: -1 });
+
+    const formattedOrders = merchantOrders.map((mo) => ({
+      merchantOrderId: mo._id,
+      orderId: mo.orderId?._id,
+      items: mo.items,
+      merchantTotal: mo.merchantTotal,
+      orderStatus: mo.orderId?.orderStatus,
+      address: mo.orderId?.address,
+      createdAt: mo.createdAt,
+      confirmed: mo.confirmed || false,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      count: formattedOrders.length,
+      orders: formattedOrders,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Error loading merchant orders",
+    });
+  }
+};
+
+exports.getMerchantStock = async (req, res) => {
+  try {
+    const merchantId = req.user.userId;
+
+    // Strict ObjectId matching (prevents casting issues)
+    const products = await ProductModel.find({
+      merchantId: new mongoose.Types.ObjectId(merchantId),
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: products.length,
+      products,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to load merchant products",
     });
   }
 };

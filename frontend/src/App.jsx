@@ -23,13 +23,18 @@ import Manage from "./components/admin/Manage";
 import Default from "./pages/Default";
 import api from "./api";
 import { toast, ToastContainer } from "react-toastify";
-import { addToCart } from "./store/cart";
+import { addToCart, clearCart } from "./store/cart";
 import Buynow from "./pages/Buynow";
 import MyOrder from "./pages/MyOrder";
 import AdminOrders from "./components/admin/AdminOrders";
 import Profile from "./pages/Profile";
 import ParticularItem from "./components/admin/ParticularItem";
 import Dashboard from "./components/admin/Dashboard";
+import BulkMange from "./components/admin/BulkMange";
+import Report from "./components/admin/Report";
+import RazorpayButton from "./pages/RazorPayButton";
+import Checkout from "./pages/Checkout";
+import ManageUsers from "./components/admin/ManageUsers";
 
 const App = () => {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
@@ -50,11 +55,9 @@ const App = () => {
         const res = await api.get("/home");
         if (res.data) {
           dispatch(addCat(res.data.category));
-          // dispatch(add(res.data.products));
-          // console.log(res.data.category);
         }
       } catch (err) {
-        toast.error(err || "server fault");
+        toast.error(err?.message || "server fault");
       }
     };
     getCategories();
@@ -73,10 +76,12 @@ const App = () => {
         });
 
         if (res.data?.success && Array.isArray(res.data.cart)) {
+          dispatch(clearCart()); // ✅ prevent duplication
+
           res.data.cart.forEach((item) => {
             dispatch(
               addToCart({
-                _id: item.productId,
+                _id: item.productId?._id, // ✅ fixed
                 quantity: item.quantity,
               }),
             );
@@ -100,7 +105,7 @@ const App = () => {
     role ? localStorage.setItem("role", role) : localStorage.removeItem("role");
   }, [role]);
 
-  // 🔥 AUTO LOGOUT TIMER (this was missing)
+  /* 🔥 AUTO LOGOUT TIMER */
   useEffect(() => {
     const expiry = localStorage.getItem("token_expiry");
     if (!expiry) return;
@@ -110,7 +115,9 @@ const App = () => {
     if (remaining <= 0) {
       setToken(null);
       setRole(null);
-      localStorage.clear();
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("token_expiry");
       navigate("/login", { replace: true });
       return;
     }
@@ -118,7 +125,9 @@ const App = () => {
     const timer = setTimeout(() => {
       setToken(null);
       setRole(null);
-      localStorage.clear();
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("token_expiry");
       navigate("/login", { replace: true });
     }, remaining);
 
@@ -161,7 +170,10 @@ const App = () => {
         <Route path="upload" element={<Upload />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="manage" element={<Manage />} />
-        <Route path="manage/items/:id" element={<ParticularItem />}></Route>
+        <Route path="manage/items/:id" element={<ParticularItem />} />
+        <Route path="bulkManage" element={<BulkMange />} />
+        <Route path="authorize-users" element={<Report />} />
+        <Route path="users" element={<ManageUsers />}></Route>
       </Route>
       <Route
         path="/login"
@@ -189,8 +201,8 @@ const App = () => {
           <Route path="/bestSeller" element={<BestSeller />} />
           <Route path="/search" element={<Search />} />
           <Route path="/buy-now" element={<Buynow />} />
-          <Route path="/orders" element={<MyOrder />}></Route>
-          <Route path="/profile" element={<Profile />}></Route>
+          <Route path="/orders" element={<MyOrder />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="/login"
             element={<Login setRole={setRole} setToken={setToken} />}
@@ -199,6 +211,7 @@ const App = () => {
             path="/signup"
             element={<Signup setRole={setRole} setToken={setToken} />}
           />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="*" element={<Default />} />
         </Routes>
       </main>

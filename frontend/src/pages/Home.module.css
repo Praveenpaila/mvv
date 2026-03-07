@@ -3,6 +3,9 @@
   padding-left: 20px;
   padding-right: 20px;
   box-sizing: border-box;
+
+  /* modern neutral canvas */
+  background-color: #f1f5f9;
 }
 
 /* Section wrapper */
@@ -26,7 +29,9 @@
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .card:hover {
