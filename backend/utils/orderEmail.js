@@ -3,6 +3,13 @@ function formatINR(amount) {
   return `₹${Number.isFinite(n) ? n.toFixed(0) : "0"}`;
 }
 
+// Override the legacy rupee symbol rendering (the file contains a mis-encoded "₹").
+// Keep email output ASCII-safe and consistent with SMS.
+function formatINR(amount) {
+  const n = Number(amount || 0);
+  return `Rs.${Number.isFinite(n) ? n.toFixed(0) : "0"}`;
+}
+
 function prettyStatus(status) {
   const map = {
     assigned: "Assigned",
@@ -25,8 +32,20 @@ function escapeHtml(s) {
     .replaceAll("'", "&#39;");
 }
 
-function buildItemsTable(itemsObj) {
-  const items = Object.values(itemsObj || {});
+function normalizeItems(itemsLike) {
+  if (!itemsLike) return [];
+  const items = Array.isArray(itemsLike) ? itemsLike : Object.values(itemsLike);
+  return items
+    .map((i) => ({
+      name: i?.name,
+      quantity: Number(i?.quantity || 0),
+      price: Number(i?.price || 0),
+    }))
+    .filter((i) => i.name && i.quantity > 0);
+}
+
+function buildItemsTable(itemsLike) {
+  const items = normalizeItems(itemsLike);
   if (!items.length) return "<p>No items</p>";
 
   const rows = items
@@ -109,6 +128,7 @@ function buildOrderPlacedEmail({ order, userName }) {
   const createdAt = order?.createdAt
     ? new Date(order.createdAt).toLocaleString()
     : new Date().toLocaleString();
+  const status = prettyStatus(order?.orderStatus);
 
   const bodyHtml = `
     <p style="margin-top:10px;color:#334155;">
@@ -117,6 +137,7 @@ function buildOrderPlacedEmail({ order, userName }) {
     <div style="margin-top:12px;color:#334155;font-size:14px;">
       <div><strong>Order ID:</strong> ${orderId}</div>
       <div><strong>Placed at:</strong> ${escapeHtml(createdAt)}</div>
+      <div><strong>Status:</strong> ${escapeHtml(status)}</div>
       <div><strong>Delivery:</strong> ${deliveryTime}</div>
       <div><strong>Payment:</strong> ${paymentType}</div>
     </div>
@@ -143,6 +164,10 @@ function buildOrderStatusEmail({ order, userName, previousStatus }) {
   const newStatus = prettyStatus(order?.orderStatus);
   const prev = previousStatus ? prettyStatus(previousStatus) : null;
   const total = formatINR(order?.totalAmount);
+  const paymentType = escapeHtml(order?.paymentType);
+  const createdAt = order?.createdAt
+    ? new Date(order.createdAt).toLocaleString()
+    : "";
 
   const bodyHtml = `
     <p style="margin-top:10px;color:#334155;">
@@ -152,8 +177,15 @@ function buildOrderStatusEmail({ order, userName, previousStatus }) {
       <div><strong>Order ID:</strong> ${orderId}</div>
       ${prev ? `<div><strong>Previous:</strong> ${escapeHtml(prev)}</div>` : ""}
       <div><strong>Current:</strong> ${escapeHtml(newStatus)}</div>
+      ${createdAt ? `<div><strong>Placed at:</strong> ${escapeHtml(createdAt)}</div>` : ""}
+      <div><strong>Payment:</strong> ${paymentType}</div>
       <div><strong>Total:</strong> ${total}</div>
     </div>
+    ${buildItemsTable(order?.items)}
+    <div style="margin-top:12px;text-align:right;font-size:16px;font-weight:800;color:#0f172a;">
+      Total: ${total}
+    </div>
+    ${buildAddressBlock(order?.address)}
     <div style="margin-top:14px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#0f172a;">
       We’ll notify you again if there are more updates.
     </div>

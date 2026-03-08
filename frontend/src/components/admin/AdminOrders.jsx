@@ -6,66 +6,81 @@ import api from "../../api";
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [state, setState] = useState("");
   const [deliveryPersons, setDeliveryPersons] = useState([]);
   const [assigningOrderId, setAssigningOrderId] = useState(null);
   const [selectedDeliveryPerson, setSelectedDeliveryPerson] = useState("");
   const [orderDeliveries, setOrderDeliveries] = useState({}); // orderId -> delivery info
+  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const [pagination, setPagination] = useState(null);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await api.get("/admin/orders", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        if (res.data.success) {
-          setOrders(res.data.orders);
-          // Fetch merchant + delivery status for EVERY order (placed and confirmed)
-          res.data.orders.forEach(async (order) => {
-            try {
-              const deliveryRes = await api.get(`/delivery/order/${order._id}`);
-              if (deliveryRes.data.success) {
-                setOrderDeliveries((prev) => ({
-                  ...prev,
-                  [order._id]: deliveryRes.data,
-                }));
-              }
-            } catch (err) {
-              // Order might have no merchant orders yet
-            }
-          });
-        }
-      } catch (err) {
-        toast.error("Failed to load orders");
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    let ignore = false;
     const fetchDeliveryPersons = async () => {
       try {
-        const res = await api.get("/delivery/persons", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        if (res.data.success) {
+        const res = await api.cachedGet("/delivery/persons");
+        if (!ignore && res.data.success) {
           setDeliveryPersons(res.data.deliveryPersons || []);
           if (!res.data.deliveryPersons || res.data.deliveryPersons.length === 0) {
             toast.warning("No delivery persons found. Please add delivery persons first.");
           }
         }
       } catch (err) {
-        console.error("Failed to load delivery persons:", err);
-        toast.error("Failed to load delivery persons list");
+        if (!ignore) {
+          console.error("Failed to load delivery persons:", err);
+          toast.error("Failed to load delivery persons list");
+        }
+      }
+    };
+
+    fetchDeliveryPersons();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let ignore = false;
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const params = { page, limit };
+        if (orderStatusFilter !== "all") params.orderStatus = orderStatusFilter;
+
+        const res = await api.cachedGet("/admin/orders", { params });
+        if (!ignore && res.data.success) {
+          const nextOrders = res.data.orders || [];
+          setOrders(nextOrders);
+          setPagination(res.data.pagination || null);
+
+          // Fetch merchant + delivery status for orders on this page only
+          nextOrders.forEach(async (order) => {
+            try {
+              const deliveryRes = await api.cachedGet(`/delivery/order/${order._id}`);
+              if (!ignore && deliveryRes.data.success) {
+                setOrderDeliveries((prev) => ({
+                  ...prev,
+                  [order._id]: deliveryRes.data,
+                }));
+              }
+            } catch {
+              // Order might have no merchant orders yet
+            }
+          });
+        }
+      } catch {
+        if (!ignore) toast.error("Failed to load orders");
+      } finally {
+        if (!ignore) setLoading(false);
       }
     };
 
     fetchOrders();
-    fetchDeliveryPersons();
-  }, []);
+    return () => {
+      ignore = true;
+    };
+  }, [page, orderStatusFilter]);
 
   const updateStatus = async (orderId, status) => {
     try {
@@ -130,6 +145,31 @@ const AdminOrders = () => {
   return (
     <div className={styles.container}>
       <h2 className={styles.heading}> Customer Orders</h2>
+      <div className={styles.toolbar}>
+        <label className={styles.toolbarLabel}>
+          Status{" "}
+          <select
+            value={orderStatusFilter}
+            onChange={(e) => {
+              setPage(1);
+              setOrderStatusFilter(e.target.value);
+            }}
+            className={styles.toolbarSelect}
+          >
+            <option value="all">All</option>
+            <option value="placed">Placed</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="out_for_delivery">Out for delivery</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </label>
+        {pagination && (
+          <span className={styles.toolbarInfo}>
+            Page {pagination.page} of {pagination.totalPages}
+          </span>
+        )}
+      </div>
       <ToastContainer></ToastContainer>
       {orders.map((order) => (
         <div className={styles.orderCard} key={order._id}>
@@ -280,50 +320,34 @@ const AdminOrders = () => {
               value={order.orderStatus}
               onChange={(e) => updateStatus(order._id, e.target.value)}
             >
-              <option
-                value="placed"
-                onClick={() => {
-                  setState("Placed");
-                }}
-              >
-                Placed
-              </option>
-              <option
-                value="confirmed"
-                onClick={() => {
-                  setState("Confirmed");
-                }}
-              >
-                Confirmed
-              </option>
-              <option
-                value="out_for_delivery"
-                onClick={() => {
-                  setState("Out for delivery");
-                }}
-              >
-                Out for delivery
-              </option>
-              <option
-                value="delivered"
-                onClick={() => {
-                  setState("Delivered");
-                }}
-              >
-                Delivered
-              </option>
-              <option
-                value="cancelled"
-                onClick={() => {
-                  setState("Cancelled");
-                }}
-              >
-                Cancelled
-              </option>
+              <option value="placed">Placed</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="out_for_delivery">Out for delivery</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
         </div>
       ))}
+
+      {pagination && (
+        <div className={styles.pager}>
+          <button
+            className={styles.assignDeliveryBtn}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={!pagination.hasPrev}
+          >
+            Previous
+          </button>
+          <button
+            className={styles.assignDeliveryBtn}
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!pagination.hasNext}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

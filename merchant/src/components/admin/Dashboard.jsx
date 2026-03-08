@@ -31,7 +31,7 @@ const Dashboard = () => {
         if (productsRes.data?.success) {
           setProducts(productsRes.data.products || []);
         }
-      } catch (err) {
+      } catch {
         toast.error("Failed to load dashboard data");
       } finally {
         setLoading(false);

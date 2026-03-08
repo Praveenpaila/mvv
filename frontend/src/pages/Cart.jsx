@@ -195,8 +195,15 @@ const Cart = () => {
         },
       );
 
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      if (!razorpayKey) {
+        toast.error("Payment is not configured");
+        setLoading(false);
+        return;
+      }
+
       const options = {
-        key: "rzp_test_SHwgaPZxmn05yq",
+        key: razorpayKey,
         amount: Number(paymentRes.data.amount),
         currency: "INR",
         order_id: paymentRes.data.id,

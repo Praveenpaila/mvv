@@ -1,7 +1,6 @@
 import styles from "./Nav.module.css";
 import {
   Link,
-  useLocation,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
@@ -10,15 +9,15 @@ import { CiShoppingCart, CiSearch } from "react-icons/ci";
 import { CgProfile } from "react-icons/cg";
 import { clearCart } from "../store/cart";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useMemo, useCallback, useState } from "react";
 
 const Nav = ({ setToken }) => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.cart);
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
-  const [searchValue, setSearchValue] = useState(searchParams.get("q") || "");
+  const query = useMemo(() => searchParams.get("q") || "", [searchParams]);
+  const searchInputRef = useRef(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const debounceTimer = useRef(null);
   const profileRef = useRef(null);
@@ -35,9 +34,8 @@ const Nav = ({ setToken }) => {
     setToken("");
   };
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = useCallback((e) => {
     const value = e.target.value;
-    setSearchValue(value);
 
     // Clear previous timer
     if (debounceTimer.current) {
@@ -53,23 +51,21 @@ const Nav = ({ setToken }) => {
         navigate("/search");
       }
     }, 500);
-  };
+  }, [navigate]);
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = useCallback((e) => {
     e.preventDefault();
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
-    if (searchValue.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchValue.trim())}`);
-    }
-  };
 
-  // Sync with URL params
-  useEffect(() => {
-    const query = searchParams.get("q") || "";
-    setSearchValue(query);
-  }, [searchParams]);
+    const value = searchInputRef.current?.value || "";
+    if (value.trim()) {
+      navigate(`/search?q=${encodeURIComponent(value.trim())}`);
+    } else {
+      navigate("/search");
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -85,8 +81,10 @@ const Nav = ({ setToken }) => {
   }, []);
 
   useEffect(() => {
-    setIsProfileOpen(false);
-  }, [location.pathname]);
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, []);
 
   return (
     <nav className={styles.nav}>
@@ -102,9 +100,11 @@ const Nav = ({ setToken }) => {
         <form className={styles.search} onSubmit={handleSearchSubmit}>
           <CiSearch />
           <input
+            key={query}
+            ref={searchInputRef}
             type="text"
             placeholder="Search products..."
-            value={searchValue}
+            defaultValue={query}
             onChange={handleSearchChange}
           />
         </form>

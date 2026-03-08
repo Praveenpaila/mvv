@@ -39,6 +39,24 @@
   min-width: 0;
 }
 
+.menuBtn {
+  display: none;
+  padding: 0 12px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(15, 23, 42, 0.25);
+  color: #e2e8f0;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+}
+
+.menuBtn:focus {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
 .brand {
   color: #ffffff;
   font-size: 30px;
@@ -114,6 +132,14 @@
     font-size: 14px;
   }
 
+}
+
+@media (max-width: 768px) {
+  .menuBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 /* MOBILE */

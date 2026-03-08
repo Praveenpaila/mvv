@@ -1,6 +1,4 @@
-import React, { useEffect } from "react";
-import api from "../../api";
-import { toast, ToastContainer } from "react-toastify";
+import React from "react";
 import styles from "./Manage.module.css";
 import { useSelector } from "react-redux";
 import { Title } from "../Title";

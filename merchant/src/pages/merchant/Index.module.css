@@ -11,71 +11,14 @@
 }
 
 /* ========================= */
-/* SIDEBAR (DESKTOP DEFAULT) */
-/* ========================= */
-
-.sidebar {
-  width: 300px;
-  height: calc(100vh - 64px);
-  background: rgba(31, 38, 135, 0.18);
-  color: #e5e7eb;
-  position: fixed;
-  top: 64px;
-  left: 0;
-  padding: 24px 18px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  border-right: 1.5px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-}
-
-/* TITLE */
-.title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 18px;
-  color: #7f9cf5;
-  letter-spacing: 1px;
-}
-
-/* MENU */
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.link {
-  text-decoration: none;
-  color: #cbd5e1;
-  font-size: 16px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  transition:
-    background 0.18s,
-    color 0.18s,
-    transform 0.12s;
-  font-weight: 500;
-}
-
-.link:hover,
-.link.active {
-  background: linear-gradient(90deg, #7f9cf5 0%, #2563eb 100%);
-  color: #fff;
-  transform: translateX(6px) scale(1.04);
-}
-
-/* ========================= */
 /* MAIN CONTENT */
 /* ========================= */
 
 .main {
-  margin-left: 300px; /* match sidebar */
-  padding: 24px;
-  padding-top: 80px; /* navbar space */
+  margin-left: 240px; /* match sidebar */
+  padding: 96px 24px 24px; /* navbar + spacing */
   box-sizing: border-box;
-  min-height: calc(100vh - 64px);
+  min-height: calc(100vh - 80px);
 }
 
 /* Scroll styling */
@@ -88,52 +31,32 @@
   border-radius: 4px;
 }
 
-/* ========================= */
-/* TABLET */
-/* ========================= */
-
-@media (max-width: 768px) {
-  .sidebar {
-    width: 180px;
-  }
-
-  .main {
-    margin-left: 180px;
-  }
+.backdrop {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1500;
 }
 
-/* ========================= */
-/* MOBILE (DROPDOWN MODE) */
-/* ========================= */
+.backdropOpen {
+  opacity: 1;
+  pointer-events: auto;
+}
 
-@media (max-width: 600px) {
-  .sidebar {
-    position: relative; /* remove fixed */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-    display: none; /* hidden by default */
-    padding: 16px;
-    border-bottom: 1px solid #1e293b;
-  }
-
-  .sidebar.open {
-    display: block; /* show when toggled */
+@media (max-width: 768px) {
+  .backdrop {
+    display: block;
   }
 
   .main {
-    margin-left: 0; /* remove sidebar space */
-    padding-top: 24px;
-  }
-  @media (max-width: 600px) {
-    .sidebar {
-      position: relative;
-      display: none;
-    }
-
-    .sidebar.open {
-      display: block;
-    }
+    margin-left: 0;
+    padding: 96px 12px 20px;
   }
 }

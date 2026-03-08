@@ -11,6 +11,56 @@
   color: var(--text);
 }
 
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.toolbarLabel {
+  font-weight: 800;
+  color: var(--text);
+}
+
+.toolbarSelect {
+  margin-left: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.toolbarSelect:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.pager {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.pagerBtn {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+  width: min(260px, 100%);
+}
+
+.pagerBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .loading {
   text-align: center;
   margin-top: 3rem;
@@ -27,4 +77,12 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
+}
+
+@media (max-width: 520px) {
+  .toolbarSelect {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 8px;
+  }
 }

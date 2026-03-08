@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import QRScanner from "./QRScanner";
 import styles from "./App.module.css";
 
+const baseURL = import.meta.env.VITE_WATCHMAN_API_URL || "/api/watchman";
+
 const loginApi = async (username, password) => {
   try {
-    const res = await fetch("http://localhost:5005/watchman/login", {
+    const res = await fetch(`${baseURL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -21,7 +23,7 @@ const loginApi = async (username, password) => {
 
 const fetchDeliveryPerson = async (qrValue) => {
   try {
-    const res = await fetch("http://localhost:5005/watchman/scan-qr", {
+    const res = await fetch(`${baseURL}/scan-qr`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ qrValue }),
@@ -99,11 +101,15 @@ export default function App() {
       {scanResult && (
         <div className={styles.resultBox}>
           <h3>Delivery Person Found</h3>
-          <img
-            src={scanResult.image}
-            alt={scanResult.name}
-            className={styles.personImg}
-          />
+          {scanResult.image ? (
+            <img
+              src={scanResult.image}
+              alt={scanResult.name}
+              className={styles.personImg}
+            />
+          ) : (
+            <div className={styles.personPlaceholder} aria-hidden="true" />
+          )}
           <p>Name: {scanResult.name}</p>
         </div>
       )}

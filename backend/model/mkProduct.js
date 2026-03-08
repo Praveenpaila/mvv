@@ -58,5 +58,12 @@ const productSchema = new mongoose.Schema(
   },
 );
 
+// Indexes for common filters/sorts
+productSchema.index({ category: 1, createdAt: -1 });
+productSchema.index({ merchantId: 1, createdAt: -1 });
+productSchema.index({ price: 1 });
+productSchema.index({ stock: 1 });
+productSchema.index({ name: "text", description: "text" });
+
 module.exports =
   mongoose.models.mkProduct || mongoose.model("mkProduct", productSchema);

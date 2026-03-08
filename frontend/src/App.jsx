@@ -32,7 +32,6 @@ import ParticularItem from "./components/admin/ParticularItem";
 import Dashboard from "./components/admin/Dashboard";
 import BulkMange from "./components/admin/BulkMange";
 import Report from "./components/admin/Report";
-import RazorpayButton from "./pages/RazorPayButton";
 import Checkout from "./pages/Checkout";
 import ManageUsers from "./components/admin/ManageUsers";
 
@@ -118,12 +117,14 @@ const App = () => {
     const remaining = Number(expiry) - Date.now();
 
     if (remaining <= 0) {
-      setToken(null);
-      setRole(null);
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.removeItem("token_expiry");
-      navigate("/login", { replace: true });
+      setTimeout(() => {
+        setToken(null);
+        setRole(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("token_expiry");
+        navigate("/login", { replace: true });
+      }, 0);
       return;
     }
 

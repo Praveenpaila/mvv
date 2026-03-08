@@ -1,6 +1,7 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import api from "../../api";
+import styles from "./BulkManage.module.css"; // import CSS module
 
 const BulkManage = () => {
   const fileRef = useRef();
@@ -19,7 +20,7 @@ const BulkManage = () => {
     }
 
     const formData = new FormData();
-    formData.append("file", file); // MUST match multer field
+    formData.append("file", file);
 
     try {
       const res = await api.post("/bulkManage", formData);
@@ -35,7 +36,9 @@ const BulkManage = () => {
   };
 
   return (
-    <div>
+    <div className={styles.bulkWrapper}>
+      {" "}
+      {/* apply class */}
       <ToastContainer />
       <input type="file" ref={fileRef} accept=".csv" />
       <button onClick={handleUpload}>Upload</button>

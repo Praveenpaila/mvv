@@ -5,6 +5,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import MerchantHome from "./MerchantHome";
 import MerchantUpload from "./MerchantUpload";
 import MerchantOrders from "./MerchantOrders";
+import MerchantManage from "./MerchantManage";
+import MerchantBulkManage from "./MerchantBulkManage";
 
 const Tab = createBottomTabNavigator();
 
@@ -55,6 +57,26 @@ export default function MerchantDashboard({ navigation, setToken, setRole }) {
         name="MOrders"
         options={{ tabBarLabel: "Orders", tabBarIcon: () => <TabIcon emoji="📋" />, headerTitle: "My Orders" }}
         component={MerchantOrders}
+      />
+
+      <Tab.Screen
+        name="MManage"
+        options={{
+          tabBarLabel: "Manage",
+          tabBarIcon: () => <TabIcon emoji="✏️" />,
+          headerTitle: "Manage Products",
+        }}
+        component={MerchantManage}
+      />
+
+      <Tab.Screen
+        name="MBulk"
+        options={{
+          tabBarLabel: "Bulk",
+          tabBarIcon: () => <TabIcon emoji="📄" />,
+          headerTitle: "Bulk Manage",
+        }}
+        component={MerchantBulkManage}
       />
     </Tab.Navigator>
   );

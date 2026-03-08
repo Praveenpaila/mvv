@@ -21,5 +21,10 @@ const deliverySchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+// Indexes for delivery list queries
+deliverySchema.index({ deliveryPerson: 1, createdAt: -1 });
+deliverySchema.index({ status: 1, createdAt: -1 });
+deliverySchema.index({ orderId: 1 });
+
 module.exports =
   mongoose.models.mkDelivery || mongoose.model("mkDelivery", deliverySchema);
