@@ -15,7 +15,7 @@ export const SAFE_MODE = false;
 
 // Physical device: set true and use your computer's IP (run ipconfig to find it)
 const USE_DEVICE_IP = true;
-const DEVICE_IP = "172.18.200.125"; // Wi‑Fi IPv4 from ipconfig (gitam.edu)
+const DEVICE_IP = "172.18.210.46"; // Wi‑Fi IPv4 from ipconfig (gitam.edu)
 
 const getBaseURL = () => {
   try {

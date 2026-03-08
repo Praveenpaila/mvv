@@ -9,8 +9,8 @@ const Footer = () => {
       <div className={styles.top}>
         {/* BRAND */}
         <div className={styles.brand}>
-          <img src={asset.mkLogo} alt="MK Gold Coast" />
-          <h3>MK Gold Coast</h3>
+          <img src={asset.mkLogo} alt="MVV" />
+          <h3>MVV</h3>
           <p>Fresh groceries delivered to your doorstep.</p>
         </div>
 
@@ -41,10 +41,11 @@ const Footer = () => {
       </div>
 
       <div className={styles.bottom}>
-        © {new Date().getFullYear()} MK Gold Coast. All rights reserved.
+        © {new Date().getFullYear()} MVV. All rights reserved.
       </div>
     </footer>
   );
 };
 
 export default Footer;
+

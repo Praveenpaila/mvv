@@ -2,9 +2,9 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styles from "./SideBar.module.css";
 
-const SideBar = () => {
+const SideBar = ({ open }) => {
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${open ? styles.open : ""}`}>
       <h3 className={styles.title}>Admin</h3>
 
       <nav className={styles.menu}>

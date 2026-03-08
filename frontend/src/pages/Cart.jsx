@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { MdDeleteForever } from "react-icons/md";
 import api from "../api";
 import { addAddress, removeAddress } from "../store/address";
-import { clearCart } from "../store/cart";
+import { addToCart, clearCart } from "../store/cart";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -23,6 +23,38 @@ const Cart = () => {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [itemPrices, setItemPrices] = useState({}); // Track prices by item ID
+
+  /* ================= LOAD CART ================= */
+  useEffect(() => {
+    const loadCart = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        dispatch(clearCart());
+        return;
+      }
+
+      try {
+        const res = await api.get("/cart");
+        if (res.data?.success && Array.isArray(res.data.cart)) {
+          dispatch(clearCart());
+          res.data.cart.forEach((entry) => {
+            const productId = entry?.productId?._id;
+            if (!productId) return;
+            dispatch(
+              addToCart({
+                _id: productId,
+                quantity: entry.quantity,
+              }),
+            );
+          });
+        }
+      } catch {
+        toast.error("Failed to load cart");
+      }
+    };
+
+    loadCart();
+  }, [dispatch]);
 
   /* ================= TOTAL CALCULATION ================= */
   useEffect(() => {
@@ -168,7 +200,7 @@ const Cart = () => {
         amount: Number(paymentRes.data.amount),
         currency: "INR",
         order_id: paymentRes.data.id,
-        name: "MK Gold Coast",
+        name: "MVV",
         description: "Order Payment",
         prefill: {
           name: checkOutAddress?.firstName || "Guest",
@@ -307,3 +339,4 @@ const Cart = () => {
 };
 
 export default Cart;
+

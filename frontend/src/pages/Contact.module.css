@@ -1,67 +1,64 @@
 .contactPage {
-  padding-top: 100px;
-  background-color: #f9fafb;
+  padding-top: calc(var(--nav-height) + 16px);
   min-height: 100vh;
 }
 
 .container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 40px 20px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px 20px 34px;
 }
 
-/* HEADER */
 .header {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 36px;
 }
 
 .header h1 {
-  font-size: 32px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 8px;
+  font-size: clamp(30px, 5vw, 42px);
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 10px;
 }
 
 .header p {
   font-size: 16px;
-  color: #6b7280;
+  color: var(--muted);
 }
 
-/* CONTENT */
 .content {
   display: flex;
-  gap: 50px;
-  background: #ffffff;
-  padding: 40px;
-  border-radius: 10px;
+  gap: 30px;
+  background: var(--surface);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
 }
 
-/* LEFT INFO */
 .info {
   flex: 1;
 }
 
 .info h2 {
-  font-size: 20px;
+  font-size: 22px;
   margin-bottom: 12px;
-  color: #111827;
+  color: var(--text);
 }
 
 .info p {
   font-size: 15px;
-  color: #4b5563;
+  color: var(--muted);
   line-height: 1.7;
   margin-bottom: 20px;
 }
 
 .details p {
   font-size: 14px;
-  color: #374151;
+  color: var(--text);
   margin-bottom: 8px;
 }
 
-/* FORM */
 .form {
   flex: 1;
   display: flex;
@@ -71,38 +68,42 @@
 
 .form input,
 .form textarea {
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #cfded3;
   font-size: 14px;
   outline: none;
+  background: #fbfefc;
 }
 
 .form input:focus,
 .form textarea:focus {
-  border-color: #2563eb;
+  border-color: var(--primary);
 }
 
 .form button {
   margin-top: 10px;
-  background-color: #2563eb;
+  background: linear-gradient(180deg, #2f8f5b 0%, #256f47 100%);
   color: #ffffff;
   border: none;
   padding: 12px;
-  border-radius: 6px;
+  border-radius: 12px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .form button:hover {
-  background-color: #1d4ed8;
+  background: linear-gradient(180deg, #2a7f51 0%, #215f3d 100%);
 }
 
-/* MOBILE */
 @media (max-width: 768px) {
+  .container {
+    padding: 14px 14px 24px;
+  }
+
   .content {
     flex-direction: column;
-    padding: 25px;
+    padding: 18px 14px;
   }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   View,
@@ -17,6 +17,8 @@ import { clearCart } from "../store/cart";
 import Toast from "react-native-toast-message";
 import { useRazorpay } from "../hooks/useRazorpay";
 import { RAZORPAY_KEY_ID } from "../config/apiConfig";
+import colors from "../theme/colors";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const Cart = ({ navigation }) => {
   const { token } = useAuth();
@@ -26,6 +28,7 @@ const Cart = ({ navigation }) => {
   useEffect(() => {
     if (!token && navigation?.replace) navigation.replace("Login");
   }, [token, navigation]);
+
   const cart = useSelector((state) => state.cart.cart);
   const addresses = useSelector((state) => state.address.address);
   const [checkOutAddress, setCheckoutAddress] = useState(null);
@@ -33,6 +36,8 @@ const Cart = ({ navigation }) => {
   const [totalSum, setTotalSum] = useState(0);
   const [paymentType, setPaymentType] = useState("cash");
   const [orderLoading, setOrderLoading] = useState(false);
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
 
   const onPriceChange = (productId, price, quantity) => {
     setPriceMap((prev) => {
@@ -106,7 +111,6 @@ const Cart = ({ navigation }) => {
         return;
       }
 
-      // Online payment: create Razorpay order and open checkout
       const paymentRes = await api.post("/payment/create-order", { orderId });
       const amount = Number(paymentRes.data?.amount) || Math.round(totalSum * 100);
       const razorpayOrderId = paymentRes.data?.id;
@@ -123,14 +127,14 @@ const Cart = ({ navigation }) => {
           amount,
           currency: "INR",
           order_id: razorpayOrderId,
-          name: "MK Gold Coast",
+          name: "MVV",
           description: "Order Payment",
           prefill: {
             name: checkOutAddress?.firstName || "Guest",
             email: checkOutAddress?.email || "guest@example.com",
             contact: String(checkOutAddress?.phoneNumber || "9999999999"),
           },
-          theme: { color: "#10B981" },
+          theme: { color: colors.primary },
         },
         {
           onSuccess: async (data) => {
@@ -160,7 +164,7 @@ const Cart = ({ navigation }) => {
           onClose: () => {
             setOrderLoading(false);
           },
-        }
+        },
       );
     } catch (err) {
       Toast.show({ type: "error", text1: err?.response?.data?.message || "Order failed" });
@@ -169,7 +173,11 @@ const Cart = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.cartPage} contentContainerStyle={styles.content}>
+    <ScrollView
+      ref={scrollRef}
+      style={styles.cartPage}
+      contentContainerStyle={styles.content}
+    >
       <View style={styles.left}>
         <Title text1="Shopping" text2="Cart" />
         {cart.length === 0 ? (
@@ -213,12 +221,8 @@ const Cart = ({ navigation }) => {
                 <Text style={styles.addrText}>{addr.phoneNumber}</Text>
               </View>
             </View>
-            <TouchableOpacity
-              onPress={(e) => {
-                onRemoveHandler(addr._id);
-              }}
-            >
-              <Text style={styles.removeIcon}>🗑</Text>
+            <TouchableOpacity onPress={() => onRemoveHandler(addr._id)}>
+              <Text style={styles.removeIcon}>X</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         ))}
@@ -231,7 +235,7 @@ const Cart = ({ navigation }) => {
         </TouchableOpacity>
 
         <View style={styles.selectRow}>
-          <Text style={styles.selectLabel}>Payment: </Text>
+          <Text style={styles.selectLabel}>Payment:</Text>
           <TouchableOpacity
             style={[
               styles.option,
@@ -268,13 +272,15 @@ const Cart = ({ navigation }) => {
 
         <View style={styles.summary}>
           <Text style={styles.summaryLabel}>Total Amount</Text>
-          <Text style={styles.summaryAmount}>₹{totalSum}</Text>
+          <Text style={styles.summaryAmount}>{`\u20B9${totalSum}`}</Text>
         </View>
 
         <TouchableOpacity
           style={[
             styles.checkout,
-            (!checkOutAddress || cart.length === 0 || orderLoading) ? styles.checkoutDisabled : null,
+            !checkOutAddress || cart.length === 0 || orderLoading
+              ? styles.checkoutDisabled
+              : null,
           ]}
           onPress={handleOrder}
           disabled={!checkOutAddress || cart.length === 0 || orderLoading}
@@ -287,83 +293,106 @@ const Cart = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Razorpay checkout modal - must be rendered for online payments */}
       {RazorpayUI}
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  cartPage: { flex: 1, backgroundColor: "#F8FAFC" },
+  cartPage: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, paddingBottom: 100 },
   left: { marginBottom: 24 },
-  empty: { fontSize: 16, color: "#666", textAlign: "center", marginTop: 24 },
-  right: {},
-  sectionTitle: { fontSize: 18, fontWeight: "700", marginBottom: 12 },
+  empty: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginTop: 24,
+  },
+  right: {
+    backgroundColor: colors.surface,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 14,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 12,
+    color: colors.text,
+  },
   checkAddress: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     padding: 12,
     borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 2,
-    borderColor: "transparent",
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  selected: { borderColor: "#10B981" },
-  addressLeft: { flexDirection: "row", alignItems: "center", flex: 1 },
+  selected: { borderColor: colors.primary, backgroundColor: "#EAF8EF" },
+  addressLeft: { flexDirection: "row", alignItems: "flex-start", flex: 1 },
   radio: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
     borderWidth: 2,
-    borderColor: "#ccc",
+    borderColor: "#9FB7A8",
     marginRight: 12,
+    marginTop: 3,
   },
-  radioChecked: { backgroundColor: "#10B981", borderColor: "#10B981" },
+  radioChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
   addressCard: { flex: 1 },
-  addrName: { fontSize: 16, fontWeight: "600", color: "#333" },
-  addrText: { fontSize: 13, color: "#666", marginTop: 2 },
-  removeIcon: { fontSize: 20, marginLeft: 8 },
-  addBtn: {
-    backgroundColor: "#10B981",
-    padding: 14,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 16,
+  addrName: { fontSize: 14, fontWeight: "700", color: colors.text },
+  addrText: { fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+  removeIcon: {
+    fontSize: 12,
+    color: "#DC2626",
+    fontWeight: "700",
+    marginLeft: 8,
   },
-  addBtnText: { color: "#fff", fontWeight: "600", fontSize: 16 },
-  selectRow: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
-  selectLabel: { fontSize: 14, marginRight: 8 },
+  addBtn: {
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: colors.primary,
+    padding: 10,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 14,
+    backgroundColor: "transparent",
+  },
+  addBtnText: { color: colors.primaryDark, fontWeight: "700", fontSize: 14 },
+  selectRow: { flexDirection: "row", alignItems: "center", marginBottom: 14 },
+  selectLabel: { fontSize: 14, marginRight: 8, color: colors.text },
   option: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 999,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#CDDDCF",
   },
-  optionSelected: { backgroundColor: "#10B981", borderColor: "#10B981" },
-  optionText: { fontSize: 14, color: "#333" },
-  optionTextSelected: { color: "#fff", fontWeight: "600" },
+  optionSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
+  optionText: { fontSize: 13, color: colors.text },
+  optionTextSelected: { color: "#fff", fontWeight: "700" },
   summary: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
-    paddingVertical: 12,
+    marginBottom: 14,
   },
-  summaryLabel: { fontSize: 16, fontWeight: "600" },
-  summaryAmount: { fontSize: 20, fontWeight: "700", color: "#10B981" },
+  summaryLabel: { fontSize: 16, fontWeight: "700", color: colors.text },
+  summaryAmount: { fontSize: 20, fontWeight: "800", color: colors.primaryDark },
   checkout: {
-    backgroundColor: "#10B981",
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: colors.primary,
+    padding: 13,
+    borderRadius: 12,
     alignItems: "center",
   },
-  checkoutDisabled: { backgroundColor: "#bdc3c7" },
-  checkoutText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  checkoutDisabled: { backgroundColor: "#9CA3AF" },
+  checkoutText: { color: "#fff", fontWeight: "700", fontSize: 15 },
 });
 
 export default Cart;

@@ -1,9 +1,8 @@
 .container {
-  /* max-width: 1000px; */
   margin: 2rem auto;
   padding: 0 1rem;
-  width: 1100px;
-  height: 500px;
+  width: min(1100px, 100%);
+  min-height: 500px;
 }
 
 .heading {
@@ -291,4 +290,47 @@
 .loading {
   text-align: center;
   margin-top: 3rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin: 1rem auto;
+    padding: 0 0.4rem;
+  }
+
+  .heading {
+    font-size: 1.5rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .status {
+    font-size: 1.1rem;
+  }
+
+  .amount {
+    font-size: 1.1rem;
+  }
+
+  .itemRow {
+    grid-template-columns: 32px 1fr;
+  }
+
+  .itemRow span:last-child {
+    grid-column: 1 / -1;
+    justify-self: flex-end;
+  }
+
+  .assignActions {
+    flex-direction: column;
+  }
+
+  .assignBtn,
+  .cancelBtn,
+  .assignDeliveryBtn {
+    width: 100%;
+  }
 }

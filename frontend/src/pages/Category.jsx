@@ -1,10 +1,10 @@
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import Product from "./Product";
 import DisplayProducts from "./DisplayProducts";
 import { useEffect } from "react";
 import api from "../api";
 import { add } from "../store/product";
+import styles from "./Category.module.css";
 
 const Category = () => {
   const { id } = useParams();
@@ -28,11 +28,10 @@ const Category = () => {
   // console.log(filteredProducts);
 
   return (
-    // <div></div>
-    <div style={{ padding: "80px" }}>
-      {products.length === 0 && <p>No products found</p>}
+    <div className={styles.page}>
+      {products.length === 0 && <p className={styles.empty}>No products found</p>}
 
-      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+      <div className={styles.grid}>
         {products.map((item) => (
           <DisplayProducts key={item.id} item={item} />
         ))}

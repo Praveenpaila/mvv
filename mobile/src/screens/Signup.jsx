@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import { Title } from "../components/Title";
 import api from "../api/api";
 import { SAFE_MODE } from "../config/apiConfig";
 import Toast from "react-native-toast-message";
+import colors from "../theme/colors";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const Signup = ({ setToken, setRole, navigation }) => {
   const [userName, setUserName] = useState("");
@@ -20,6 +22,8 @@ const Signup = ({ setToken, setRole, navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
 
   const onSubmitHandler = async () => {
     if (!userName || !email || !phoneNumber || !password) {
@@ -63,6 +67,7 @@ const Signup = ({ setToken, setRole, navigation }) => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
     >
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -125,7 +130,7 @@ const Signup = ({ setToken, setRole, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: "#f8f9fa" },
+  page: { flex: 1, backgroundColor: colors.background },
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
@@ -134,31 +139,33 @@ const styles = StyleSheet.create({
     paddingBottom: 280,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     padding: 24,
-    borderRadius: 12,
-    shadowColor: "#000",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     elevation: 4,
   },
   form: { marginTop: 20 },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
+    borderColor: "#CFDED3",
+    borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 16,
+    fontSize: 15,
     marginBottom: 12,
-    color: "#1a1a1a",
-    backgroundColor: "#fff",
+    color: colors.text,
+    backgroundColor: "#FBFEFC",
   },
   submit: {
-    backgroundColor: "#2ecc71",
+    backgroundColor: colors.primary,
     padding: 14,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: "center",
     marginTop: 8,
   },
@@ -170,8 +177,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexWrap: "wrap",
   },
-  footerText: { fontSize: 14, color: "#666" },
-  footerLink: { fontSize: 14, color: "#2ecc71", fontWeight: "600" },
+  footerText: { fontSize: 14, color: colors.textSecondary },
+  footerLink: { fontSize: 14, color: colors.primaryDark, fontWeight: "600" },
 });
 
 export default Signup;

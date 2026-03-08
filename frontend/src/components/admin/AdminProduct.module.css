@@ -34,3 +34,13 @@
   font-weight: 600;
   color: #111;
 }
+
+@media (max-width: 600px) {
+  .image {
+    height: 180px;
+  }
+
+  .name {
+    font-size: 15px;
+  }
+}

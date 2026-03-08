@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import colors from "../theme/colors";
 
 const Product = ({ item, onPress }) => (
   <TouchableOpacity
@@ -28,42 +29,48 @@ const Product = ({ item, onPress }) => (
 const styles = StyleSheet.create({
   card: {
     width: "48%",
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: colors.surface,
+    borderRadius: 14,
     overflow: "hidden",
-    marginBottom: 20,
+    marginBottom: 14,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: "#F1F5F9",
+    borderColor: colors.border,
   },
   imageWrap: {
     width: "100%",
-    height: 130,
-    backgroundColor: "#F8FAFC",
+    height: 142,
+    backgroundColor: colors.surfaceSoft,
     overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 12,
   },
   image: {
     width: "100%",
     height: "100%",
   },
   info: {
-    padding: 16,
+    padding: 12,
+    alignItems: "center",
   },
   name: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
-    color: "#1E293B",
-    lineHeight: 22,
+    color: colors.text,
+    lineHeight: 20,
+    textAlign: "center",
   },
   price: {
-    fontSize: 16,
-    color: "#10B981",
-    fontWeight: "800",
-    marginTop: 8,
+    fontSize: 14,
+    color: colors.primaryDark,
+    fontWeight: "600",
+    marginTop: 6,
   },
 });
 

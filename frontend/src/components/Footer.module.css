@@ -1,83 +1,74 @@
-:root {
-  --primary: #e6f0ff; /* Light Blue Background */
-  --accent: #3b82f6; /* Soft Blue Accent */
-  --dark: #1e293b; /* Dark Text */
-  --gray: #64748b; /* Muted Text */
-  --light: #ffffff;
-}
-
-/* ===== FOOTER ===== */
 .footer {
-  background-color: var(--primary);
-  color: var(--dark);
-  padding: 40px 60px 20px;
+  background: linear-gradient(180deg, #eaf6ee 0%, #dceddf 100%);
+  color: var(--text);
+  border-top: 1px solid var(--line);
+  padding: 40px 32px 18px;
   box-sizing: border-box;
 }
 
-/* ===== TOP SECTION ===== */
 .top {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
+  gap: 22px;
+  max-width: 1240px;
+  margin: 0 auto 24px;
   margin-bottom: 30px;
 }
 
-/* ===== BRAND ===== */
 .brand img {
-  width: 45px;
-  margin-bottom: 10px;
+  width: 44px;
+  margin-bottom: 12px;
 }
 
 .brand h3 {
   margin: 0;
-  font-size: 18px;
-  color: var(--dark);
+  font-size: 20px;
+  color: var(--text);
 }
 
 .brand p {
   font-size: 14px;
-  margin-top: 6px;
-  color: var(--gray);
+  margin-top: 8px;
+  color: var(--muted);
+  max-width: 280px;
 }
 
-/* ===== LINKS ===== */
 .links h4,
 .contact h4 {
   margin-bottom: 12px;
   font-size: 15px;
-  color: var(--dark);
+  color: var(--text);
 }
 
 .links a {
   display: block;
   text-decoration: none;
-  color: var(--gray);
+  color: var(--muted);
   font-size: 14px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  transition: color 0.2s ease;
 }
 
 .links a:hover {
-  color: var(--accent);
-  text-decoration: underline;
+  color: var(--primary-dark);
 }
 
-/* ===== CONTACT ===== */
 .contact p {
   font-size: 14px;
-  margin-bottom: 6px;
-  color: var(--gray);
+  margin-bottom: 8px;
+  color: var(--muted);
 }
 
-/* ===== BOTTOM ===== */
 .bottom {
-  border-top: 1px solid rgba(30, 41, 59, 0.15);
-  padding-top: 15px;
+  border-top: 1px solid rgba(22, 48, 32, 0.12);
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-top: 14px;
   text-align: center;
   font-size: 13px;
-  color: var(--gray);
+  color: var(--muted);
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   .top {
     grid-template-columns: repeat(2, 1fr);
@@ -90,6 +81,6 @@
   }
 
   .footer {
-    padding: 30px 20px 15px;
+    padding: 30px 16px 15px;
   }
 }

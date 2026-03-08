@@ -1,67 +1,50 @@
-/* =========================
-   PAGE / WALLPAPER
-   ========================= */
-
 .home {
-  padding: 80px 20px;
-  background-color: #f8fafc;
+  padding: calc(var(--nav-height) + 18px) 20px 28px;
+  background: transparent;
   box-sizing: border-box;
 }
 
-/* =========================
-   GRID
-   ========================= */
-
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px;
 }
 
-/* =========================
-   PRODUCT CARD
-   ========================= */
-
 .card {
-  height: 300px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-
+  min-height: 324px;
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-
+  overflow: hidden;
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+  border-color: #c7dccf;
 }
 
-/* DISABLED */
 .disabled {
-  opacity: 0.45;
-  pointer-events: none;
+  opacity: 0.6;
 }
-
-/* =========================
-   IMAGE AREA (NO CARD INSIDE)
-   ========================= */
 
 .imageWrapper {
-  height: 140px;
+  height: 164px;
   width: 100%;
-
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  left: -10px;
-
-  padding: 12px;
+  padding: 14px;
+  background:
+    radial-gradient(circle at top left, #f0f9f3 0, transparent 42%),
+    var(--surface-soft);
 }
 
 .image {
@@ -70,42 +53,32 @@
   object-fit: contain;
 }
 
-/* =========================
-   BADGE
-   ========================= */
-
 .outOfStock {
   position: absolute;
-  top: 12px;
-  left: 12px;
-
+  top: 10px;
+  left: 10px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   color: #ffffff;
-
-  background-color: #111827;
+  background-color: #26373f;
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: 999px;
 }
-
-/* =========================
-   INFO
-   ========================= */
 
 .info {
   flex: 1;
-  padding: 10px 14px 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
+  gap: 3px;
 }
 
 .name {
-  font-size: 14px;
-  font-weight: 600;
-  color: #020617;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
   line-height: 1.3;
-  margin-bottom: 2px;
-
+  margin-bottom: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -114,13 +87,9 @@
 
 .packSize {
   font-size: 12px;
-  color: #64748b;
+  color: var(--muted);
   margin-bottom: 8px;
 }
-
-/* =========================
-   BOTTOM
-   ========================= */
 
 .bottom {
   margin-top: auto;
@@ -130,20 +99,20 @@
 }
 
 .price {
-  font-size: 15px;
-  font-weight: 700;
-  color: #020617;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary-dark);
 }
 
 .stockOk {
   font-size: 11px;
-  color: #15803d;
+  color: #1d7a4b;
   font-weight: 600;
 }
 
 .stockLow {
   font-size: 11px;
-  color: #b45309;
+  color: #ab6400;
   font-weight: 600;
 }
 
@@ -153,64 +122,87 @@
   font-weight: 600;
 }
 
-/* =========================
-   ACTIONS
-   ========================= */
-
 .addBtn {
-  background-color: #020617;
+  background: linear-gradient(180deg, #2f8f5b 0%, #256f47 100%);
   color: #ffffff;
   border: none;
-
-  padding: 6px 14px;
-  border-radius: 6px;
-
+  padding: 7px 14px;
+  border-radius: 999px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .addBtn:hover {
-  background-color: #000000;
+  background: linear-gradient(180deg, #2a7f51 0%, #215d3c 100%);
+}
+
+.disabledBtn {
+  border: 1px solid #e2e8e4;
+  background: #f3f6f4;
+  color: #789085;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .qtyBox {
   display: flex;
   align-items: center;
-  gap: 10px;
-
-  border: 1px solid #020617;
-  border-radius: 6px;
-  padding: 2px 10px;
+  gap: 8px;
+  border: 1px solid #c7dacd;
+  border-radius: 999px;
+  padding: 4px 8px;
+  white-space: nowrap;
 }
 
 .qtyBox button {
   background: none;
   border: none;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--text);
   cursor: pointer;
+}
+
+.qtyBox button:hover {
+  background: #edf6f0;
 }
 
 .qtyBox span {
   font-size: 13px;
-  font-weight: 600;
+  min-width: 16px;
+  text-align: center;
+  font-weight: 700;
 }
 
-/* =========================
-   MOBILE
-   ========================= */
-
 @media (max-width: 480px) {
-  .card {
-    height: 290px;
-  }
-
-  .imageWrapper {
-    height: 130px;
+  .home {
+    padding: calc(var(--nav-height) + 10px) 14px 24px;
   }
 
   .grid {
-    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    min-height: 290px;
+  }
+
+  .imageWrapper {
+    height: 138px;
+    padding: 10px;
+  }
+
+  .info {
+    padding: 10px;
   }
 }

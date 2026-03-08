@@ -36,6 +36,7 @@ import MerchantDashboard from "./src/screens/merchant/MerchantDashboard";
 import DeliveryDashboard from "./src/screens/delivery/DeliveryDashboard";
 import SecurityLogin from "./src/screens/security/SecurityLogin";
 import SecurityDashboard from "./src/screens/security/SecurityDashboard";
+import colors from "./src/theme/colors";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -129,11 +130,11 @@ function MainTabs({ token, setToken, setRole }) {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#10B981",
-        tabBarInactiveTintColor: "#94A3B8",
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: "#fff",
-          borderTopColor: "#E2E8F0",
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           paddingTop: 8,
           height: 60,
         },
@@ -147,7 +148,7 @@ function MainTabs({ token, setToken, setRole }) {
         name="HomeTab"
         options={{
           tabBarLabel: "Home",
-          tabBarIcon: () => <TabIcon emoji="🏠" />,
+          tabBarIcon: () => <TabIcon icon={"\u{1F3E0}"} />,
         }}
       >
         {(props) => (
@@ -165,7 +166,7 @@ function MainTabs({ token, setToken, setRole }) {
         name="ExploreTab"
         options={{
           tabBarLabel: "Explore",
-          tabBarIcon: () => <TabIcon emoji="✨" />,
+          tabBarIcon: () => <TabIcon icon={"\u2728"} />,
         }}
       >
         {(props) => (
@@ -183,7 +184,7 @@ function MainTabs({ token, setToken, setRole }) {
         name="CartTab"
         options={{
           tabBarLabel: "Cart",
-          tabBarIcon: () => <TabIcon emoji="🛒" />,
+          tabBarIcon: () => <TabIcon icon={"\u{1F6D2}"} />,
         }}
       >
         {(props) => (
@@ -201,7 +202,7 @@ function MainTabs({ token, setToken, setRole }) {
         name="AccountTab"
         options={{
           tabBarLabel: "Account",
-          tabBarIcon: () => <TabIcon emoji="👤" />,
+          tabBarIcon: () => <TabIcon icon={"\u{1F464}"} />,
         }}
       >
         {(props) => (
@@ -219,9 +220,9 @@ function MainTabs({ token, setToken, setRole }) {
   );
 }
 
-function TabIcon({ emoji }) {
+function TabIcon({ icon }) {
   const { Text } = require("react-native");
-  return <Text style={{ fontSize: 22 }}>{emoji}</Text>;
+  return <Text style={{ fontSize: 20 }}>{icon}</Text>;
 }
 
 function AppNavigator({ token, setToken, setRole, role }) {
@@ -441,3 +442,5 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+
+

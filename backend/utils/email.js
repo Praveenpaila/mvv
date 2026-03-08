@@ -1,4 +1,6 @@
 const nodemailer = require("nodemailer");
+const DEFAULT_FROM_EMAIL = "praveenpaila2175@gmail.com";
+const DEFAULT_FROM_NAME = "MVV";
 
 let cachedTransporter = null;
 
@@ -7,7 +9,7 @@ function isEmailConfigured() {
     process.env.SMTP_HOST &&
       process.env.SMTP_USER &&
       process.env.SMTP_PASS &&
-      (process.env.SMTP_FROM || process.env.SMTP_USER),
+      (process.env.SMTP_FROM || process.env.SMTP_USER || DEFAULT_FROM_EMAIL),
   );
 }
 
@@ -32,6 +34,15 @@ function getTransporter() {
   return cachedTransporter;
 }
 
+function resolveFromAddress(rawValue) {
+  const value = String(rawValue || "").trim();
+  if (!value) return DEFAULT_FROM_EMAIL;
+
+  // Supports both `email@x.com` and `Name <email@x.com>`.
+  const match = value.match(/<([^>]+)>/);
+  return (match ? match[1] : value).trim();
+}
+
 async function sendEmail({ to, subject, html, text }) {
   if (!to) return { skipped: true, reason: "missing_to" };
   if (!isEmailConfigured()) {
@@ -40,7 +51,13 @@ async function sendEmail({ to, subject, html, text }) {
     return { skipped: true, reason: "not_configured" };
   }
 
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const configuredFrom =
+    process.env.SMTP_FROM || process.env.SMTP_USER || DEFAULT_FROM_EMAIL;
+  const fromAddress = resolveFromAddress(configuredFrom);
+  const from = {
+    name: String(process.env.SMTP_FROM_NAME || DEFAULT_FROM_NAME).trim(),
+    address: fromAddress,
+  };
   const transporter = getTransporter();
 
   const info = await transporter.sendMail({

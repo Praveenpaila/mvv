@@ -95,6 +95,10 @@
 
 /* Responsive */
 @media (max-width: 480px) {
+  .page {
+    padding: 14px;
+  }
+
   .card {
     padding: 28px 24px;
   }

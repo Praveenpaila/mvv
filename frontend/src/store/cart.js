@@ -12,6 +12,7 @@ const cartSlice = createSlice({
     },
     addToCart: (state, action) => {
       const { _id, quantity } = action.payload;
+      if (!_id) return;
 
       const itemIndex = state.cart.findIndex((i) => i._id === _id);
 

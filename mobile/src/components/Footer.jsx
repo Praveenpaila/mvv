@@ -1,40 +1,43 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import colors from "../theme/colors";
 
 const Footer = ({ navigation }) => (
   <View style={styles.footer}>
-    <View style={styles.brand}>
-      <Text style={styles.brandName}>MK Gold Coast</Text>
-      <Text style={styles.brandDesc}>
-        Fresh groceries delivered to your doorstep.
-      </Text>
+    <View style={styles.top}>
+      <View style={styles.brand}>
+        <Text style={styles.brandName}>MVV</Text>
+        <Text style={styles.brandDesc}>
+          Fresh groceries delivered to your doorstep.
+        </Text>
+      </View>
+
+      <View style={styles.links}>
+        <Text style={styles.sectionTitle}>Quick Links</Text>
+        <TouchableOpacity
+          onPress={() => navigation?.navigate?.("Main", { screen: "HomeTab" })}
+        >
+          <Text style={styles.link}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation?.navigate?.("About")}>
+          <Text style={styles.link}>About</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation?.navigate?.("Contact")}>
+          <Text style={styles.link}>Contact</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.contact}>
+        <Text style={styles.sectionTitle}>Contact</Text>
+        <Text style={styles.contactText}>India</Text>
+        <Text style={styles.contactText}>+91 9XXXXXXXXX</Text>
+        <Text style={styles.contactText}>support@mkgoldcoast.com</Text>
+      </View>
     </View>
-    <View style={styles.links}>
-      <TouchableOpacity
-        onPress={() => navigation?.navigate?.("Main", { screen: "HomeTab" })}
-      >
-        <Text style={styles.link}>Home</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation?.navigate?.("About")}>
-        <Text style={styles.link}>About</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation?.navigate?.("Contact")}>
-        <Text style={styles.link}>Contact</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => navigation?.navigate?.("Main", { screen: "CartTab" })}
-      >
-        <Text style={styles.link}>Cart</Text>
-      </TouchableOpacity>
-    </View>
-    <View style={styles.contact}>
-      <Text style={styles.contactText}>📍 India</Text>
-      <Text style={styles.contactText}>📞 +91 9XXXXXXXXX</Text>
-      <Text style={styles.contactText}>✉️ support@mkgoldcoast.com</Text>
-    </View>
+
     <View style={styles.bottom}>
       <Text style={styles.copyright}>
-        © {new Date().getFullYear()} MK Gold Coast. All rights reserved.
+        Copyright {new Date().getFullYear()} MVV. All rights reserved.
       </Text>
     </View>
   </View>
@@ -42,51 +45,62 @@ const Footer = ({ navigation }) => (
 
 const styles = StyleSheet.create({
   footer: {
-    backgroundColor: "#1E293B",
-    padding: 24,
+    backgroundColor: "#EAF6EE",
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
     marginTop: 32,
+    paddingHorizontal: 18,
+    paddingTop: 26,
+    paddingBottom: 14,
+  },
+  top: {
+    marginBottom: 16,
   },
   brand: {
-    marginBottom: 20,
+    marginBottom: 18,
   },
   brandName: {
     fontSize: 20,
+    color: colors.text,
     fontWeight: "700",
-    color: "#fff",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   brandDesc: {
     fontSize: 14,
-    color: "#94A3B8",
-    lineHeight: 22,
+    color: colors.textSecondary,
+    lineHeight: 20,
   },
   links: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 20,
+    marginBottom: 18,
+  },
+  sectionTitle: {
+    fontSize: 15,
+    color: colors.text,
+    fontWeight: "700",
+    marginBottom: 10,
   },
   link: {
     fontSize: 14,
-    color: "#94A3B8",
-    marginRight: 20,
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   contact: {
-    marginBottom: 20,
+    marginBottom: 8,
   },
   contactText: {
-    fontSize: 13,
-    color: "#94A3B8",
-    marginBottom: 4,
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 6,
   },
   bottom: {
-    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: "#334155",
+    borderTopColor: "rgba(22,48,32,0.12)",
+    paddingTop: 12,
   },
   copyright: {
+    textAlign: "center",
     fontSize: 12,
-    color: "#64748B",
+    color: colors.textSecondary,
   },
 });
 

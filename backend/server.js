@@ -1,10 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
+
 const authRouter = require("./routes/auth");
 const productRouter = require("./routes/product");
 const { connectWatchmanDb } = require("./config/watchmanDb");
-require("dotenv").config();
+const { isSmsConfigured } = require("./utils/sms");
 
 const PORT = process.env.PORT;
 const MongoURL = process.env.MONGO_URL;
@@ -38,7 +41,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Serve deliveryImages as static files
-const path = require("path");
 app.use(
   "/deliveryImages",
   express.static(path.join(__dirname, "../deliveryImages")),
@@ -71,6 +73,12 @@ mongoose
   .connect(MongoURL)
   .then(async () => {
     console.log("Mongoose connected successfully");
+    const smsProvider = (process.env.SMS_PROVIDER || "fast2sms").toLowerCase();
+    console.log(
+      `[sms] provider=${smsProvider} enabled=${String(
+        process.env.SMS_ENABLED || "true",
+      )} configured=${isSmsConfigured()}`,
+    );
     await connectWatchmanDb();
     app.use("/api/watchman", require("./routes/watchmanRoutes"));
     app.listen(PORT, "0.0.0.0", () => {

@@ -1,0 +1,30 @@
+.page {
+  padding: calc(var(--nav-height) + 18px) 20px 36px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.empty {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px;
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: calc(var(--nav-height) + 10px) 14px 24px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}

@@ -1,20 +1,34 @@
 import styles from "./Nav.module.css";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { asset } from "../assets/assets";
 import { CiShoppingCart, CiSearch } from "react-icons/ci";
 import { CgProfile } from "react-icons/cg";
 import { clearCart } from "../store/cart";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 
 const Nav = ({ setToken }) => {
   const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.cart);
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState(searchParams.get("q") || "");
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const debounceTimer = useRef(null);
+  const profileRef = useRef(null);
+  const cartCount = cartItems.reduce(
+    (total, item) => total + (Number(item.quantity) || 0),
+    0,
+  );
 
   const logoutHandler = () => {
+    setIsProfileOpen(false);
     localStorage.removeItem("token");
     dispatch(clearCart());
     navigate("/login");
@@ -57,11 +71,28 @@ const Nav = ({ setToken }) => {
     setSearchValue(query);
   }, [searchParams]);
 
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    setIsProfileOpen(false);
+  }, [location.pathname]);
+
   return (
     <nav className={styles.nav}>
       {/* LEFT : LOGO */}
       <Link to="/" className={styles.logo}>
-        <img src={asset.mkLogo} alt="MK Gold Coast" />
+        <img src={asset.mkLogo} alt="MVV" />
         <span>MVV</span>
       </Link>
 
@@ -90,11 +121,27 @@ const Nav = ({ setToken }) => {
       {/* RIGHT : ICONS */}
       <div className={styles.actions}>
         {/* PROFILE */}
-        <div className={styles.profile}>
-          <CgProfile />
-          <div className={styles.dropdown}>
-            <Link to="/profile">Profile</Link>
-            <Link to="/orders">Orders</Link>
+        <div className={styles.profile} ref={profileRef}>
+          <button
+            type="button"
+            className={styles.profileButton}
+            onClick={() => setIsProfileOpen((prev) => !prev)}
+            aria-haspopup="menu"
+            aria-expanded={isProfileOpen}
+            aria-label="Profile menu"
+          >
+            <CgProfile />
+          </button>
+          <div
+            className={`${styles.dropdown} ${isProfileOpen ? styles.open : ""}`}
+            role="menu"
+          >
+            <Link to="/profile" onClick={() => setIsProfileOpen(false)}>
+              Profile
+            </Link>
+            <Link to="/orders" onClick={() => setIsProfileOpen(false)}>
+              Orders
+            </Link>
             <Link to="/login" onClick={logoutHandler}>
               Logout
             </Link>
@@ -104,6 +151,7 @@ const Nav = ({ setToken }) => {
         {/* CART */}
         <Link to="/cart" className={styles.icon}>
           <CiShoppingCart />
+          {cartCount > 0 && <span className={styles.badge}>{cartCount}</span>}
         </Link>
       </div>
     </nav>
@@ -111,3 +159,4 @@ const Nav = ({ setToken }) => {
 };
 
 export default Nav;
+

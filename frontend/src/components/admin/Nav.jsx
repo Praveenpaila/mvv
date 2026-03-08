@@ -2,13 +2,21 @@ import React from "react";
 import styles from "./Nav.module.css";
 import { useNavigate } from "react-router";
 
-const Nav = ({ setToken, setRole }) => {
+const Nav = ({ setToken, setRole, toggleSidebar }) => {
   const navigate = useNavigate();
   return (
     <nav className={styles.nav}>
       {/* LEFT */}
       <div className={styles.left}>
-        <span className={styles.brand}>MK Gold Coast</span>
+        <button
+          type="button"
+          className={styles.menuBtn}
+          aria-label="Toggle sidebar"
+          onClick={toggleSidebar}
+        >
+          Menu
+        </button>
+        <span className={styles.brand}>MVV</span>
         <span className={styles.panel}>Admin Panel</span>
       </div>
 
@@ -30,3 +38,4 @@ const Nav = ({ setToken, setRole }) => {
 };
 
 export default Nav;
+

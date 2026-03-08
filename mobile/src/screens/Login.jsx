@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,11 +14,16 @@ import { Title } from "../components/Title";
 import api from "../api/api";
 import { SAFE_MODE } from "../config/apiConfig";
 import Toast from "react-native-toast-message";
+import colors from "../theme/colors";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const Login = ({ setToken, setRole, navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const scrollRef = useRef(null);
+
+  useScrollToTopOnFocus(scrollRef);
 
   const onSubmitHandler = async () => {
     if (!email || !password) {
@@ -26,15 +31,17 @@ const Login = ({ setToken, setRole, navigation }) => {
       return;
     }
     setLoading(true);
+
     try {
-      // Force-timeout login so UI never hangs on "Logging in..."
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 9000);
+
       const res = await api.post(
         "/auth/login",
         { email, password },
         { signal: controller.signal },
       );
+
       clearTimeout(timeoutId);
 
       if (res.data?.success) {
@@ -44,7 +51,6 @@ const Login = ({ setToken, setRole, navigation }) => {
 
         Toast.show({ type: "success", text1: "Login successful" });
 
-        // Route each role to its dedicated panel
         const roleRoutes = {
           admin: "AdminPanel",
           merchant: "MerchantPanel",
@@ -75,16 +81,13 @@ const Login = ({ setToken, setRole, navigation }) => {
         msg = "Demo mode: Login disabled (backend not connected)";
       } else if (err?.code === "ERR_CANCELED" || err?.name === "CanceledError") {
         msg = "Server not connected";
-        description = "Request timed out. Check IP/Wi‑Fi and ensure backend is running.";
+        description = "Request timed out. Check IP/Wi-Fi and ensure backend is running.";
       } else if (err.response) {
-        // Backend responded with an error (e.g. wrong password, email not found)
         msg = err.response.data?.message || "Incorrect email or password";
       } else if (err.request) {
-        // Request made but no response -> server not reachable / network issue
         msg = "Server not connected";
-        description = "Please check your Wi‑Fi, IP address, or that the backend is running.";
+        description = "Please check your Wi-Fi, IP address, or that the backend is running.";
       } else {
-        // Something else (config / unexpected)
         msg = "Unexpected error during login";
         description = err.message;
       }
@@ -107,17 +110,20 @@ const Login = ({ setToken, setRole, navigation }) => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
             <Title text1="Login" text2="" />
+            <Text style={styles.subtitle}>Welcome back to your grocery dashboard.</Text>
+
             <View style={styles.form}>
               <TextInput
                 style={styles.input}
                 placeholder="Email"
-                placeholderTextColor="#888"
+                placeholderTextColor={colors.textSecondary}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -126,7 +132,7 @@ const Login = ({ setToken, setRole, navigation }) => {
               <TextInput
                 style={styles.input}
                 placeholder="Password"
-                placeholderTextColor="#888"
+                placeholderTextColor={colors.textSecondary}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -136,9 +142,7 @@ const Login = ({ setToken, setRole, navigation }) => {
                 onPress={onSubmitHandler}
                 disabled={loading}
               >
-                <Text style={styles.submitText}>
-                  {loading ? "Logging in..." : "Login"}
-                </Text>
+                <Text style={styles.submitText}>{loading ? "Logging in..." : "Login"}</Text>
               </TouchableOpacity>
               <View style={styles.footer}>
                 <Text style={styles.footerText}>Don't have an account? </Text>
@@ -157,59 +161,69 @@ const Login = ({ setToken, setRole, navigation }) => {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   keyboardView: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "transparent",
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingBottom: 280,
+    paddingBottom: 30,
   },
   card: {
     width: "100%",
-    maxWidth: 400,
-    backgroundColor: "#fff",
+    maxWidth: 430,
+    backgroundColor: colors.surface,
     padding: 24,
-    borderRadius: 12,
-    shadowColor: "#000",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     elevation: 4,
+  },
+  subtitle: {
+    marginTop: -8,
+    marginBottom: 2,
+    color: colors.textSecondary,
+    fontSize: 14,
   },
   form: { marginTop: 20 },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
+    borderColor: "#CFDED3",
+    borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 12,
-    color: "#1a1a1a",
-    backgroundColor: "#fff",
+    color: colors.text,
+    backgroundColor: "#FBFEFC",
   },
   submit: {
-    backgroundColor: "#2ecc71",
+    backgroundColor: colors.primary,
     padding: 14,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: "center",
     marginTop: 8,
   },
   submitDisabled: { backgroundColor: "#95a5a6" },
-  submitText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  submitText: { color: "#fff", fontWeight: "700", fontSize: 14 },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 16,
     flexWrap: "wrap",
+    gap: 4,
   },
-  footerText: { fontSize: 14, color: "#666" },
-  footerLink: { fontSize: 14, color: "#2ecc71", fontWeight: "600" },
+  footerText: { fontSize: 13, color: colors.textSecondary },
+  footerLink: { fontSize: 13, color: colors.primaryDark, fontWeight: "600" },
 });
 
 export default Login;

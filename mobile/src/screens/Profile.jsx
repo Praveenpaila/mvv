@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useDispatch } from "react-redux";
 import { clearCart } from "../store/cart";
 import api from "../api/api";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const Profile = ({ navigation, setToken }) => {
   const { token } = useAuth();
   const dispatch = useDispatch();
   const [user, setUser] = useState(null);
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
 
   useEffect(() => {
     if (!token && navigation?.replace) navigation.replace("Login");
@@ -45,7 +48,11 @@ const Profile = ({ navigation, setToken }) => {
     );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      ref={scrollRef}
+      style={styles.container}
+      contentContainerStyle={styles.content}
+    >
       <View style={styles.card}>
         <View style={styles.header}>
           <View style={styles.avatar}>

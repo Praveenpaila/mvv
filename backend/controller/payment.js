@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const razorpay = require("../config/razorpay");
 const Order = require("../model/mkOrder");
+const { notifyOrderStatusChanged } = require("../utils/orderNotify");
 
 exports.createRazorpayOrder = async (req, res) => {
   try {
@@ -43,10 +44,20 @@ exports.verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false });
     }
 
-    await Order.findByIdAndUpdate(orderId, {
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, {
       orderStatus: "confirmed",
       paymentStatus: "paid",
       paymentId: razorpay_payment_id,
+    }, { new: true }).populate("user", "email userName phoneNumber");
+
+    await notifyOrderStatusChanged({
+      order: updatedOrder,
+      previousStatus: "placed",
+      userEmail: updatedOrder?.user?.email || updatedOrder?.address?.email || "",
+      userName:
+        updatedOrder?.user?.userName || updatedOrder?.address?.firstName || "",
+      phoneNumber:
+        updatedOrder?.address?.phoneNumber || updatedOrder?.user?.phoneNumber || "",
     });
 
     res.json({ success: true });

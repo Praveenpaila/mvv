@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import api from "../api/api";
 import Orders from "./Orders";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const MyOrder = ({ navigation }) => {
   const { token } = useAuth();
   const [orders, setOrders] = useState([]);
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
 
   useEffect(() => {
     if (!token && navigation?.replace) navigation.replace("Login");
@@ -46,7 +49,11 @@ const MyOrder = ({ navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      ref={scrollRef}
+      style={styles.container}
+      contentContainerStyle={styles.content}
+    >
       <Text style={styles.heading}>My Orders</Text>
       {orders.map((order, idx) => (
         <Orders key={order._id != null ? String(order._id) : `order-${idx}`} order={order} />

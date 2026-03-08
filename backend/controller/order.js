@@ -4,6 +4,7 @@ const Order = require("../model/mkOrder");
 const CartModel = require("../model/mkCart");
 const MerchantOrder = require("../model/mkMerchantOrders");
 const mongoose = require("mongoose");
+const { notifyOrderPlaced } = require("../utils/orderNotify");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -140,6 +141,13 @@ exports.createOrder = async (req, res) => {
         merchantTotal: merchantMap[merchantId].total,
       });
     }
+
+    await notifyOrderPlaced({
+      order,
+      userEmail: req.user.email || address.email,
+      userName: req.user.userName || address.firstName,
+      phoneNumber: order?.address?.phoneNumber || req.user.phoneNumber,
+    });
 
     return res.status(201).json({
       success: true,

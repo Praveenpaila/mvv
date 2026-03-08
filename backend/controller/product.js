@@ -9,11 +9,10 @@ const fs = require("fs");
 const CartModel = require("../model/mkCart");
 const path = require("path");
 const csv = require("csv-parser");
-const { sendEmail } = require("../utils/email");
 const {
-  buildOrderPlacedEmail,
-  buildOrderStatusEmail,
-} = require("../utils/orderEmail");
+  notifyOrderPlaced,
+  notifyOrderStatusChanged,
+} = require("../utils/orderNotify");
 const mongoose = require("mongoose");
 // bulk
 // BASE PROJECT PATH (ENDS WITH /)
@@ -586,16 +585,16 @@ exports.postOrder = async (req, res) => {
     });
     await CartModel.deleteMany({ user: req.user.userId });
 
-    // Send order confirmation / invoice email (do not block order success)
-    try {
-      const userDoc = await UserModel.findById(user).select("email userName");
-      const toEmail = (address?.email || userDoc?.email || "").trim();
-      const userName = userDoc?.userName || address?.firstName;
-      const mail = buildOrderPlacedEmail({ order, userName });
-      await sendEmail({ to: toEmail, ...mail });
-    } catch (e) {
-      console.warn("[email] order placed email failed:", e?.message || e);
-    }
+    const userDoc = await UserModel.findById(user).select(
+      "email userName phoneNumber",
+    );
+    await notifyOrderPlaced({
+      order,
+      userEmail: req.user.email || address?.email || userDoc?.email || "",
+      userName: req.user.userName || userDoc?.userName || address?.firstName || "",
+      phoneNumber:
+        address?.phoneNumber || req.user.phoneNumber || userDoc?.phoneNumber || "",
+    });
 
     return res.status(201).json({
       success: true,
@@ -699,29 +698,23 @@ exports.changeStatus = async (req, res) => {
       });
     }
 
-    // Send status update email (do not block response)
-    try {
-      const populated =
-        existingOrder?.user?.email || existingOrder?.user?.userName
-          ? existingOrder
-          : await OrderModel.findById(id).populate("user", "email userName");
+    const populated =
+      existingOrder?.user?.email || existingOrder?.user?.userName
+        ? existingOrder
+        : await OrderModel.findById(id).populate(
+            "user",
+            "email userName phoneNumber",
+          );
 
-      const toEmail = (
-        populated?.user?.email ||
-        updatedOrder?.address?.email ||
-        ""
-      ).trim();
-      const userName =
-        populated?.user?.userName || updatedOrder?.address?.firstName;
-      const mail = buildOrderStatusEmail({
-        order: updatedOrder,
-        userName,
-        previousStatus: populated?.orderStatus,
-      });
-      await sendEmail({ to: toEmail, ...mail });
-    } catch (e) {
-      console.warn("[email] order status email failed:", e?.message || e);
-    }
+    await notifyOrderStatusChanged({
+      order: updatedOrder,
+      previousStatus: populated?.orderStatus,
+      userEmail: populated?.user?.email || updatedOrder?.address?.email || "",
+      userName:
+        populated?.user?.userName || updatedOrder?.address?.firstName || "",
+      phoneNumber:
+        updatedOrder?.address?.phoneNumber || populated?.user?.phoneNumber || "",
+    });
 
     return res.status(200).json({
       success: true,

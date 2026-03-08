@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "./Header";
+import colors from "../theme/colors";
 
 const MainLayout = ({ children, navigation, setToken, token, safeMode }) => {
   if (!navigation) return <>{children}</>;
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
   },
   layout: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: colors.background,
   },
   content: {
     flex: 1,

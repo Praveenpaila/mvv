@@ -1,26 +1,30 @@
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 1rem;
+  max-width: 960px;
+  margin: calc(var(--nav-height) + 18px) auto 34px;
+  padding: 0 14px;
 }
 
 .heading {
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   margin-bottom: 1rem;
+  color: var(--text);
 }
 
 .loading {
   text-align: center;
   margin-top: 3rem;
-  color: #555;
+  color: var(--muted);
 }
 
 .empty {
-  height: 60vh;
+  min-height: 48vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: #666;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
 }

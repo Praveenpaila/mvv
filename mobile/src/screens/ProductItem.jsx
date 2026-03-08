@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import { add } from "../store/product";
 import { addToCart, removeItem } from "../store/cart";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
+import colors from "../theme/colors";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const ProductItem = ({ route, navigation }) => {
   const { catId, id } = route.params || {};
@@ -40,6 +42,17 @@ const ProductItem = ({ route, navigation }) => {
   const quantity = cartItem ? cartItem.quantity : 0;
   const outOfStock = item?.stock === 0;
   const relatedProducts = (products || []).filter((p) => p && p._id !== id);
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
+
+  // When navigating to another related product on the same screen,
+  // force scroll reset because focus event may not re-fire.
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (node && typeof node.scrollTo === "function") {
+      node.scrollTo({ y: 0, animated: false });
+    }
+  }, [id]);
 
   const updateCart = async (newQty) => {
     const token = await AsyncStorage.getItem("token");
@@ -66,13 +79,17 @@ const ProductItem = ({ route, navigation }) => {
   if (!item) {
     return (
       <View style={styles.notFound}>
-        <Text>Product not found</Text>
+        <Text style={styles.notFoundText}>Product not found</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.main} contentContainerStyle={styles.content}>
+    <ScrollView
+      ref={scrollRef}
+      style={styles.main}
+      contentContainerStyle={styles.content}
+    >
       <View style={styles.page}>
         <View style={styles.container}>
           <View style={styles.left}>
@@ -91,14 +108,16 @@ const ProductItem = ({ route, navigation }) => {
           </View>
           <View style={styles.right}>
             <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.rating}>⭐ {item.rating || 4.5}</Text>
+            <Text style={styles.rating}>{`Rating ${item.rating || 4.5}`}</Text>
             <View style={styles.pack}>
               <Text style={styles.packLabel}>Pack Size</Text>
-              <Text style={styles.packValue}>{item.packSize}</Text>
+              <View style={styles.packPill}>
+                <Text style={styles.packValue}>{item.packSize}</Text>
+              </View>
             </View>
             <View style={styles.priceRow}>
               <View>
-                <Text style={styles.price}>₹{item.price}</Text>
+                <Text style={styles.price}>{`\u20B9${item.price}`}</Text>
                 <Text style={styles.stock}>
                   {outOfStock
                     ? "Out of stock"
@@ -120,11 +139,17 @@ const ProductItem = ({ route, navigation }) => {
                 </TouchableOpacity>
               ) : (
                 <View style={styles.qtyBox}>
-                  <TouchableOpacity onPress={() => updateCart(quantity - 1)}>
-                    <Text style={styles.qtyBtn}>−</Text>
+                  <TouchableOpacity
+                    style={styles.qtyBtnWrap}
+                    onPress={() => updateCart(quantity - 1)}
+                  >
+                    <Text style={styles.qtyBtn}>-</Text>
                   </TouchableOpacity>
                   <Text style={styles.qtyText}>{quantity}</Text>
-                  <TouchableOpacity onPress={() => updateCart(quantity + 1)}>
+                  <TouchableOpacity
+                    style={styles.qtyBtnWrap}
+                    onPress={() => updateCart(quantity + 1)}
+                  >
                     <Text style={styles.qtyBtn}>+</Text>
                   </TouchableOpacity>
                 </View>
@@ -142,7 +167,11 @@ const ProductItem = ({ route, navigation }) => {
         <Text style={styles.relatedTitle}>Related Products</Text>
         <View style={styles.relatedGrid}>
           {relatedProducts.map((p, idx) => (
-            <DisplayProducts key={p._id != null ? String(p._id) : `rel-${idx}`} item={p} navigation={navigation} />
+            <DisplayProducts
+              key={p._id != null ? String(p._id) : `rel-${idx}`}
+              item={p}
+              navigation={navigation}
+            />
           ))}
         </View>
       </View>
@@ -151,76 +180,111 @@ const ProductItem = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  main: { flex: 1, backgroundColor: "#f8f9fa" },
+  main: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, paddingBottom: 24 },
   page: { marginBottom: 24 },
-  container: { flexDirection: "column" },
+  container: { gap: 18 },
   left: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
+    position: "relative",
   },
-  image: { width: 200, height: 200 },
+  image: {
+    width: "100%",
+    height: 300,
+    backgroundColor: colors.surface,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 20,
+  },
   outOfStockBadge: {
     position: "absolute",
-    top: 12,
-    right: 12,
-    backgroundColor: "#e74c3c",
+    top: 14,
+    left: 14,
+    backgroundColor: "#111827",
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 6,
+    borderRadius: 999,
   },
   outOfStockText: { color: "#fff", fontWeight: "600", fontSize: 12 },
   right: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 18,
   },
-  name: { fontSize: 22, fontWeight: "700", color: "#333", marginBottom: 8 },
-  rating: { fontSize: 14, marginBottom: 12 },
-  pack: { marginBottom: 12 },
-  packLabel: { fontSize: 12, color: "#666", marginBottom: 4 },
-  packValue: { fontSize: 14, fontWeight: "600" },
+  name: { fontSize: 28, fontWeight: "800", color: colors.text, marginBottom: 6 },
+  rating: { fontSize: 14, marginBottom: 18, color: colors.textSecondary },
+  pack: { marginBottom: 22 },
+  packLabel: { fontSize: 13, color: colors.textSecondary, marginBottom: 8 },
+  packPill: {
+    alignSelf: "flex-start",
+    backgroundColor: "#F3F8F4",
+    borderWidth: 1,
+    borderColor: "#D2E2D7",
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  packValue: { fontSize: 14, fontWeight: "600", color: colors.text },
   priceRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    justifyContent: "space-between",
+    marginBottom: 24,
+    gap: 12,
   },
-  price: { fontSize: 24, fontWeight: "700", color: "#2ecc71" },
-  stock: { fontSize: 12, color: "#666", marginTop: 4 },
+  price: { fontSize: 30, fontWeight: "800", color: colors.primaryDark },
+  stock: { fontSize: 13, color: colors.textSecondary, marginTop: 4 },
   addBtn: {
-    backgroundColor: "#2ecc71",
-    paddingHorizontal: 24,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 28,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 999,
   },
-  addBtnText: { color: "#fff", fontWeight: "600", fontSize: 16 },
+  addBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
   disabledBtn: {
-    backgroundColor: "#bdc3c7",
-    paddingHorizontal: 24,
+    backgroundColor: "#E5E7EB",
+    paddingHorizontal: 28,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 999,
   },
-  disabledBtnText: { color: "#7f8c8d", fontWeight: "600", fontSize: 16 },
+  disabledBtnText: { color: "#6B7280", fontWeight: "600", fontSize: 14 },
   qtyBox: {
     flexDirection: "row",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#C3D8C9",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 999,
   },
-  qtyBtn: { fontSize: 24, fontWeight: "600", color: "#2ecc71", minWidth: 36, textAlign: "center" },
-  qtyText: { fontSize: 18, fontWeight: "600", minWidth: 28, textAlign: "center" },
-  description: { marginTop: 8 },
-  descTitle: { fontSize: 16, fontWeight: "600", marginBottom: 8 },
-  descText: { fontSize: 14, color: "#666", lineHeight: 22 },
-  related: { marginTop: 24 },
-  relatedTitle: { fontSize: 18, fontWeight: "700", marginBottom: 16 },
+  qtyBtnWrap: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  qtyBtn: { fontSize: 18, fontWeight: "700", color: colors.primaryDark },
+  qtyText: { fontSize: 14, fontWeight: "700", minWidth: 20, textAlign: "center" },
+  description: {
+    marginTop: 8,
+    paddingTop: 18,
+    borderTopWidth: 1,
+    borderTopColor: "#E5EFE8",
+  },
+  descTitle: { fontSize: 18, fontWeight: "600", marginBottom: 8, color: colors.text },
+  descText: { fontSize: 15, color: colors.textSecondary, lineHeight: 24 },
+  related: { marginTop: 10 },
+  relatedTitle: { fontSize: 18, fontWeight: "700", marginBottom: 12, color: colors.text },
   relatedGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
   notFound: { flex: 1, justifyContent: "center", alignItems: "center", padding: 40 },
+  notFoundText: { color: colors.textSecondary, fontSize: 15 },
 });
 
 export default ProductItem;

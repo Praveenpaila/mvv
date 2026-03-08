@@ -50,3 +50,16 @@
 .button:hover {
   background: #155d73;
 }
+
+@media (max-width: 540px) {
+  .center {
+    padding: 20px 10px;
+    align-items: flex-start;
+  }
+
+  .form {
+    width: 100%;
+    max-width: 360px;
+    padding: 24px 16px;
+  }
+}

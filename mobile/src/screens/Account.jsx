@@ -1,25 +1,26 @@
-import React from "react";
+import React, { useRef } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import Footer from "../components/Footer";
+import colors from "../theme/colors";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const MenuItem = ({ icon, title, onPress }) => (
-  <TouchableOpacity
-    style={styles.menuItem}
-    onPress={onPress}
-    activeOpacity={0.7}
-  >
+  <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.7}>
     <Text style={styles.menuIcon}>{icon}</Text>
     <Text style={styles.menuTitle}>{title}</Text>
-    <Text style={styles.menuArrow}>›</Text>
+    <Text style={styles.menuArrow}>{">"}</Text>
   </TouchableOpacity>
 );
 
 const Account = ({ navigation }) => {
   const { token } = useAuth();
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={styles.container}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
@@ -31,30 +32,30 @@ const Account = ({ navigation }) => {
         {token ? (
           <>
             <MenuItem
-              icon="👤"
+              icon={"\u{1F464}"}
               title="Profile"
               onPress={() => navigation?.navigate?.("Profile")}
             />
             <MenuItem
-              icon="📦"
+              icon={"\u{1F4E6}"}
               title="My Orders"
               onPress={() => navigation?.navigate?.("MyOrder")}
             />
           </>
         ) : (
           <MenuItem
-            icon="🔐"
+            icon={"\u{1F510}"}
             title="Login / Sign up"
             onPress={() => navigation?.navigate?.("Login")}
           />
         )}
         <MenuItem
-          icon="ℹ️"
+          icon={"\u2139\uFE0F"}
           title="About"
           onPress={() => navigation?.navigate?.("About")}
         />
         <MenuItem
-          icon="📞"
+          icon={"\u{1F4DE}"}
           title="Contact"
           onPress={() => navigation?.navigate?.("Contact")}
         />
@@ -68,7 +69,7 @@ const Account = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -77,45 +78,42 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1E293B",
+    color: colors.text,
   },
   subtitle: {
     fontSize: 14,
-    color: "#64748B",
+    color: colors.textSecondary,
     marginTop: 4,
     marginBottom: 24,
   },
   menuCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     borderRadius: 16,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
+    borderBottomColor: colors.border,
   },
   menuIcon: {
-    fontSize: 22,
+    fontSize: 20,
     marginRight: 14,
   },
   menuTitle: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#1E293B",
+    color: colors.text,
   },
   menuArrow: {
-    fontSize: 20,
-    color: "#94A3B8",
-    fontWeight: "300",
+    fontSize: 16,
+    color: colors.textSecondary,
+    fontWeight: "700",
   },
 });
 

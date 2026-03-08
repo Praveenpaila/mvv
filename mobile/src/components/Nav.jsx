@@ -43,7 +43,7 @@ const Nav = ({ navigation, setToken, token }) => {
           style={styles.logoImg}
           resizeMode="contain"
         />
-        <Text style={styles.logoText}>MK Gold Coast</Text>
+        <Text style={styles.logoText}>MVV</Text>
       </TouchableOpacity>
 
       <View style={styles.search}>
@@ -183,3 +183,4 @@ const styles = StyleSheet.create({
 });
 
 export default Nav;
+

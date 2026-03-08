@@ -45,6 +45,10 @@ const App = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
     dispatch(add(products));
     dispatch(addCat(categories));
   }, [dispatch]);
@@ -66,22 +70,23 @@ const App = () => {
   useEffect(() => {
     const loadCart = async () => {
       const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!token) {
+        dispatch(clearCart());
+        return;
+      }
 
       try {
-        const res = await api.get("/cart", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await api.get("/cart");
 
         if (res.data?.success && Array.isArray(res.data.cart)) {
-          dispatch(clearCart()); // ✅ prevent duplication
+          dispatch(clearCart());
 
           res.data.cart.forEach((item) => {
+            const productId = item?.productId?._id;
+            if (!productId) return;
             dispatch(
               addToCart({
-                _id: item.productId?._id, // ✅ fixed
+                _id: productId,
                 quantity: item.quantity,
               }),
             );
@@ -93,7 +98,7 @@ const App = () => {
     };
 
     loadCart();
-  }, [dispatch]);
+  }, [dispatch, token]);
 
   useEffect(() => {
     token

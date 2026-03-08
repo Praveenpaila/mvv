@@ -29,15 +29,16 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow MK Gold Coast to use the camera for scanning QR codes."
+          "cameraPermission": "Allow MVV to use the camera for scanning QR codes."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow MK Gold Coast to access your photos for uploading product images."
+          "photosPermission": "Allow MVV to access your photos for uploading product images."
         }
       ]
     ]
   }
 }
+

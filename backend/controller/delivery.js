@@ -3,6 +3,7 @@ const Delivery = require("../model/mkDelivery");
 const DeliveryPerson = require("../model/mkDeliveryPerson");
 const User = require("../model/mkUser");
 const bcryptjs = require("bcryptjs");
+const { notifyOrderStatusChanged } = require("../utils/orderNotify");
 
 // NEW CONTROLLER: getDeliveryPersons - Get all active delivery persons (Admin Only)
 exports.getDeliveryPersons = async (req, res) => {
@@ -360,15 +361,39 @@ exports.updateDeliveryStatus = async (req, res) => {
       });
     }
 
+    const previousStatus = delivery.status;
     delivery.status = status;
     await delivery.save();
 
     // If delivered, update mkOrders.orderStatus = "delivered"
+    let updatedOrder = await Order.findById(delivery.orderId).populate(
+      "user",
+      "email userName phoneNumber",
+    );
+
     if (status === "delivered") {
-      await Order.findByIdAndUpdate(delivery.orderId, {
+      updatedOrder = await Order.findByIdAndUpdate(delivery.orderId, {
         orderStatus: "delivered",
-      });
+      }, { new: true }).populate("user", "email userName phoneNumber");
     }
+
+    const orderForNotification = updatedOrder
+      ? {
+          ...updatedOrder.toObject(),
+          orderStatus: status,
+        }
+      : { _id: delivery.orderId, orderStatus: status, address: {} };
+
+    await notifyOrderStatusChanged({
+      order: orderForNotification,
+      previousStatus,
+      userEmail:
+        updatedOrder?.user?.email || updatedOrder?.address?.email || "",
+      userName:
+        updatedOrder?.user?.userName || updatedOrder?.address?.firstName || "",
+      phoneNumber:
+        updatedOrder?.address?.phoneNumber || updatedOrder?.user?.phoneNumber || "",
+    });
 
     return res.status(200).json({
       success: true,

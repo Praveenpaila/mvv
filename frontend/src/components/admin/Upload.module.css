@@ -8,7 +8,7 @@
 }
 
 .card {
-  width: 440px;
+  width: min(440px, 100%);
   background: #ffffff;
   border-radius: 12px;
   padding: 20px;
@@ -103,4 +103,19 @@
 
 .submit:hover {
   background: #1d4ed8;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 92px 10px 20px;
+    align-items: flex-start;
+  }
+
+  .card {
+    padding: 16px 12px;
+  }
+
+  .row {
+    flex-direction: column;
+  }
 }

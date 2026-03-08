@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import DisplayProducts from "./DisplayProducts";
 import api from "../api/api";
+import colors from "../theme/colors";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const Search = ({ route, navigation }) => {
   const initialQuery = route.params?.q || "";
@@ -19,29 +21,26 @@ const Search = ({ route, navigation }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
 
-  // Initialize search if coming from header with query
   useEffect(() => {
     if (initialQuery) {
       performSearch(initialQuery);
     }
   }, [initialQuery]);
 
-  // Real-time search with debouncing - searches automatically as user types
   useEffect(() => {
-    // Clear previous timer
     const timer = setTimeout(() => {
       if (searchQuery.trim()) {
         performSearch(searchQuery);
       } else {
-        // Clear results if search is empty
         setItems([]);
         setHasSearched(false);
         setLoading(false);
       }
-    }, 500); // Wait 500ms after user stops typing
+    }, 500);
 
-    // Cleanup timer on unmount or when searchQuery changes
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
@@ -70,17 +69,20 @@ const Search = ({ route, navigation }) => {
   };
 
   const handleSearch = () => {
-    // Immediate search when button is pressed
     performSearch(searchQuery);
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
+    >
       <View style={styles.searchBar}>
         <TextInput
           style={styles.input}
           placeholder="Search products..."
-          placeholderTextColor="#888"
+          placeholderTextColor={colors.textSecondary}
           value={searchQuery}
           onChangeText={setSearchQuery}
           onSubmitEditing={handleSearch}
@@ -92,18 +94,18 @@ const Search = ({ route, navigation }) => {
           onPress={handleSearch}
           activeOpacity={0.7}
         >
-          <Text style={styles.searchIcon}>🔍</Text>
+          <Text style={styles.searchIcon}>{"\u{1F50D}"}</Text>
         </TouchableOpacity>
       </View>
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#10B981" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Searching...</Text>
         </View>
       ) : hasSearched && items.length === 0 ? (
         <View style={styles.center}>
-          <Text style={styles.emptyIcon}>🔍</Text>
+          <Text style={styles.emptyIcon}>{"\u{1F50D}"}</Text>
           <Text style={styles.empty}>No products found</Text>
           <Text style={styles.emptySubtext}>
             Try searching with different keywords
@@ -111,7 +113,7 @@ const Search = ({ route, navigation }) => {
         </View>
       ) : !hasSearched ? (
         <View style={styles.center}>
-          <Text style={styles.emptyIcon}>🔍</Text>
+          <Text style={styles.emptyIcon}>{"\u{1F50D}"}</Text>
           <Text style={styles.empty}>Start searching for products</Text>
           <Text style={styles.emptySubtext}>
             Enter a product name above to search
@@ -119,6 +121,7 @@ const Search = ({ route, navigation }) => {
         </View>
       ) : (
         <ScrollView
+          ref={scrollRef}
           style={styles.scrollView}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
@@ -145,44 +148,40 @@ const Search = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: colors.background,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    borderBottomColor: colors.border,
   },
   input: {
     flex: 1,
-    backgroundColor: "#F1F5F9",
-    borderRadius: 12,
+    backgroundColor: colors.surfaceSoft,
+    borderRadius: 999,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: "#1E293B",
+    paddingVertical: 10,
+    fontSize: 14,
+    color: colors.text,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
   },
   searchBtn: {
-    marginLeft: 12,
-    width: 48,
-    height: 48,
-    backgroundColor: "#10B981",
-    borderRadius: 12,
+    marginLeft: 10,
+    width: 42,
+    height: 42,
+    backgroundColor: colors.primary,
+    borderRadius: 999,
     justifyContent: "center",
     alignItems: "center",
   },
   searchIcon: {
-    fontSize: 20,
+    fontSize: 18,
+    color: "#fff",
   },
   scrollView: {
     flex: 1,
@@ -192,9 +191,9 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   resultCount: {
-    fontSize: 14,
-    color: "#64748B",
-    marginBottom: 16,
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginBottom: 14,
     fontWeight: "600",
   },
   grid: {
@@ -209,25 +208,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+    fontSize: 42,
+    marginBottom: 12,
   },
   empty: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
-    color: "#1E293B",
+    color: colors.text,
     textAlign: "center",
     marginBottom: 8,
   },
   emptySubtext: {
-    fontSize: 15,
-    color: "#64748B",
+    fontSize: 14,
+    color: colors.textSecondary,
     textAlign: "center",
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 16,
-    color: "#64748B",
+    fontSize: 14,
+    color: colors.textSecondary,
   },
 });
 

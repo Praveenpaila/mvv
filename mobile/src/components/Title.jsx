@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import colors from "../theme/colors";
 
 export const Title = ({ text1, text2 }) => (
   <View style={styles.title}>
@@ -12,16 +13,17 @@ export const Title = ({ text1, text2 }) => (
 
 const styles = StyleSheet.create({
   title: {
-    marginVertical: 16,
+    marginTop: 20,
+    marginBottom: 18,
   },
   heading: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "700",
   },
   primary: {
-    color: "#333",
+    color: colors.primary,
   },
   secondary: {
-    color: "#2ecc71",
+    color: colors.text,
   },
 });

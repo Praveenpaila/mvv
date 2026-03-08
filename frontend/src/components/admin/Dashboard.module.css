@@ -262,3 +262,30 @@
     min-width: 600px;
   }
 }
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding-top: 88px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .statCard {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .statIcon {
+    width: 52px;
+    height: 52px;
+    font-size: 28px;
+  }
+
+  .statInfo h3 {
+    font-size: 22px;
+  }
+}

@@ -1,15 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import DisplayProducts from "./DisplayProducts";
 import api from "../api/api";
 import { add } from "../store/product";
 import Footer from "../components/Footer";
+import colors from "../theme/colors";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const Category = ({ route, navigation }) => {
   const { id } = route.params || {};
   const dispatch = useDispatch();
   const products = useSelector((state) => state.product.products);
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
 
   useEffect(() => {
     const getItems = async () => {
@@ -27,6 +31,7 @@ const Category = ({ route, navigation }) => {
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={styles.container}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
@@ -54,7 +59,7 @@ const Category = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -66,10 +71,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   empty: {
-    fontSize: 16,
-    color: "#64748B",
+    fontSize: 14,
+    color: colors.textSecondary,
     textAlign: "center",
-    marginTop: 48,
+    marginTop: 34,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingVertical: 14,
   },
 });
 

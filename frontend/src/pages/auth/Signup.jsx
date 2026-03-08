@@ -46,6 +46,7 @@ const Signup = ({ setToken, setRole }) => {
       <ToastContainer autoClose={2000} />
       <div className={styles.card}>
         <Title text1="Signup" text2="" />
+        <p className={styles.subtitle}>Create your account and start ordering in minutes.</p>
 
         <form onSubmit={onSubmitHandler} className={styles.form}>
           <input type="text" placeholder="Username" ref={usernameRef} />

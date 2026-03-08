@@ -127,3 +127,23 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 768px) {
+  .page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .save,
+  .delete {
+    width: 100%;
+  }
+}

@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import api from "../api/api";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import colors from "../theme/colors";
 
 const DispayCartItems = ({ item, onPriceChange, navigation }) => {
   const [quantity, setQuantity] = useState(item.quantity);
@@ -31,7 +32,7 @@ const DispayCartItems = ({ item, onPriceChange, navigation }) => {
       }
     };
     fetchProduct();
-  }, [item._id]);
+  }, [item._id, item.quantity, onPriceChange]);
 
   const updateCart = async (newQty) => {
     const token = await AsyncStorage.getItem("token");
@@ -66,20 +67,20 @@ const DispayCartItems = ({ item, onPriceChange, navigation }) => {
       <Image
         source={{ uri: product.image || "https://via.placeholder.com/80x80" }}
         style={styles.image}
-        resizeMode="cover"
+        resizeMode="contain"
       />
       <View style={styles.middle}>
         <Text style={styles.name} numberOfLines={2}>
           {product.name}
         </Text>
-        <Text style={styles.price}>₹{product.price}</Text>
+        <Text style={styles.price}>{`\u20B9${product.price}`}</Text>
       </View>
       <View style={styles.cart}>
-        <TouchableOpacity onPress={() => updateCart(quantity - 1)}>
+        <TouchableOpacity style={styles.qtyBtn} onPress={() => updateCart(quantity - 1)}>
           <Text style={styles.cartBtn}>-</Text>
         </TouchableOpacity>
         <Text style={styles.qty}>{quantity}</Text>
-        <TouchableOpacity onPress={() => updateCart(quantity + 1)}>
+        <TouchableOpacity style={styles.qtyBtn} onPress={() => updateCart(quantity + 1)}>
           <Text style={styles.cartBtn}>+</Text>
         </TouchableOpacity>
       </View>
@@ -94,58 +95,66 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     padding: 12,
     borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   image: {
-    width: 80,
-    height: 80,
+    width: 72,
+    height: 72,
     borderRadius: 8,
+    backgroundColor: colors.surfaceSoft,
+    padding: 8,
   },
   middle: {
     flex: 1,
     marginLeft: 12,
   },
   name: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.text,
   },
   price: {
     fontSize: 14,
-    color: "#2ecc71",
-    fontWeight: "600",
-    marginTop: 4,
+    color: colors.primaryDark,
+    fontWeight: "700",
+    marginTop: 5,
   },
   cart: {
     flexDirection: "row",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#C7DACD",
+    borderRadius: 999,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    marginRight: 8,
+  },
+  qtyBtn: {
+    width: 22,
+    height: 22,
+    justifyContent: "center",
+    alignItems: "center",
   },
   cartBtn: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#2ecc71",
-    minWidth: 28,
-    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.text,
   },
   qty: {
-    fontSize: 16,
-    fontWeight: "600",
-    minWidth: 24,
+    fontSize: 13,
+    fontWeight: "700",
+    minWidth: 20,
     textAlign: "center",
   },
   remove: {
-    fontSize: 13,
-    color: "#e74c3c",
+    fontSize: 12,
+    color: "#DC2626",
     fontWeight: "600",
-    marginLeft: 12,
   },
 });
 

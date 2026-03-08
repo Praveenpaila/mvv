@@ -1,54 +1,52 @@
-/* ===== PAGE LAYOUT ===== */
 .cartPage {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 24px;
-  padding: 24px;
-  max-width: 1200px;
-  margin: auto;
+  gap: 22px;
+  padding: calc(var(--nav-height) + 20px) 20px 34px;
+  max-width: 1240px;
+  margin: 0 auto;
 }
 
 @media (max-width: 900px) {
   .cartPage {
     grid-template-columns: 1fr;
+    padding-top: calc(var(--nav-height) + 14px);
   }
 }
 
-/* ===== LEFT ===== */
 .left {
-  background: #fff;
+  min-width: 0;
 }
 
-/* ===== RIGHT (CHECKOUT PANEL) ===== */
 .right {
-  background: #ffffff;
-  border-radius: 14px;
+  background: var(--surface);
+  border-radius: var(--radius-md);
   padding: 18px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--line);
   position: sticky;
-  top: 20px;
+  top: calc(var(--nav-height) + 16px);
+  box-shadow: var(--shadow);
+  height: fit-content;
 }
 
-/* ===== EMPTY ===== */
 .empty {
   text-align: center;
-  color: #6b7280;
+  color: var(--muted);
   margin-top: 40px;
 }
 
-/* ===== ADDRESS SECTION ===== */
 .right h3 {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   margin-bottom: 12px;
+  color: var(--text);
 }
 
-/* ADDRESS CARD */
 .checkAddress {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 12px;
   margin-bottom: 10px;
@@ -59,51 +57,47 @@
 }
 
 .checkAddress:hover {
-  border-color: #16a34a;
-  background: #f0fdf4;
+  border-color: #b9d5c4;
+  background: #f2faf5;
 }
 
-/* SELECTED */
 .selected {
-  border-color: #16a34a;
-  background: #ecfdf5;
+  border-color: var(--primary);
+  background: #eaf8ef;
 }
 
-/* LEFT PART */
 .addressLeft {
   display: flex;
   gap: 12px;
   align-items: flex-start;
 }
 
-/* CUSTOM RADIO */
 .radio {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid #9ca3af;
+  border: 2px solid #9fb7a8;
   margin-top: 4px;
 }
 
 .radioChecked {
-  border-color: #16a34a;
-  background: #16a34a;
+  border-color: var(--primary);
+  background: var(--primary);
 }
 
-/* ADDRESS TEXT */
 .addressCard h4 {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 2px;
+  color: var(--text);
 }
 
 .addressCard p {
   font-size: 12px;
-  color: #4b5563;
+  color: var(--muted);
   line-height: 1.4;
 }
 
-/* DELETE ICON */
 .remove {
   color: #ef4444;
   font-size: 20px;
@@ -114,50 +108,48 @@
   color: #dc2626;
 }
 
-/* ===== ADD ADDRESS BUTTON ===== */
 .addBtn {
   width: 100%;
   margin: 12px 0;
   padding: 10px;
-  border-radius: 10px;
-  border: 1px dashed #2563eb;
+  border-radius: 12px;
+  border: 1px dashed var(--primary);
   background: transparent;
-  color: #2563eb;
-  font-weight: 600;
+  color: var(--primary-dark);
+  font-weight: 700;
   cursor: pointer;
 }
 
 .addBtn:hover {
-  background: #eff6ff;
+  background: #eaf8ef;
 }
 
-/* ===== PAYMENT SELECT ===== */
 .select {
   width: 100%;
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #cdddcf;
   margin-bottom: 14px;
   font-weight: 500;
+  background: #fff;
 }
 
-/* ===== SUMMARY ===== */
 .summary {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   margin-bottom: 14px;
+  color: var(--text);
 }
 
-/* ===== CHECKOUT BUTTON ===== */
 .checkout {
   width: 100%;
-  background: #16a34a;
+  background: linear-gradient(180deg, #2f8f5b 0%, #256f47 100%);
   color: white;
   border: none;
-  padding: 12px;
+  padding: 13px;
   border-radius: 12px;
   font-size: 15px;
   font-weight: 700;
@@ -166,10 +158,16 @@
 }
 
 .checkout:hover {
-  background: #15803d;
+  background: linear-gradient(180deg, #2a7f51 0%, #1f613d 100%);
 }
 
 .checkout:disabled {
   background: #9ca3af;
   cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .right {
+    position: static;
+  }
 }

@@ -284,7 +284,7 @@
 /* Deliveries Grid */
 .deliveriesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 24px;
 }
 
@@ -489,6 +489,14 @@
     padding: 20px;
   }
 
+  .headerActions {
+    width: 100%;
+  }
+
+  .headerActions button {
+    flex: 1;
+  }
+
   .welcomeText {
     font-size: 22px;
   }
@@ -508,6 +516,23 @@
 }
 
 @media (max-width: 480px) {
+  .header {
+    padding: 16px;
+  }
+
+  .welcomeText {
+    font-size: 20px;
+  }
+
+  .profileSection {
+    padding: 16px;
+  }
+
+  .saveBtn {
+    width: 100%;
+    align-self: stretch;
+  }
+
   .deliveryCard {
     padding: 16px;
   }
@@ -520,5 +545,9 @@
 
   .itemMerchant {
     margin: 0;
+  }
+
+  .totalAmount {
+    font-size: 18px;
   }
 }

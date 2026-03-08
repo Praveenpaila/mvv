@@ -1,42 +1,52 @@
 .nav {
   height: 80px;
   width: 100%;
-  background-color: #0f172a; /* dark admin blue */
+  background-color: #0f172a;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 18px;
   box-sizing: border-box;
-
   position: fixed;
   top: 0;
   left: 0;
   z-index: 2000;
 }
 
-/* LEFT */
 .left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.menuBtn {
+  display: none;
+  padding: 0 10px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: transparent;
+  color: #e2e8f0;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
 }
 
 .brand {
   color: #e5e7eb;
-  font-size: 30px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 700;
 }
 
 .panel {
   background-color: #1e293b;
   color: #93c5fd;
-  font-size: 20px;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-weight: 500;
+  font-size: 15px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 600;
 }
 
-/* RIGHT */
 .right {
   display: flex;
   align-items: center;
@@ -46,26 +56,37 @@
   background-color: #ef4444;
   border: none;
   color: white;
-  padding: 8px 16px;
-  font-size: 18px;
-  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: 500;
-
-  transition: background-color 0.2s ease;
+  font-weight: 600;
 }
 
 .logout:hover {
   background-color: #dc2626;
 }
 
-/* RESPONSIVE */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .menuBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 540px) {
   .brand {
     display: none;
   }
 
   .panel {
     font-size: 12px;
+    padding: 5px 8px;
   }
 }
+

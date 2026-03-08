@@ -1,7 +1,7 @@
-import React, { useRef } from "react";
+import { useRef } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import api from "../../api";
-
+import styles from "./BulkManage.module.css";
 const BulkManage = () => {
   const fileRef = useRef();
 
@@ -35,7 +35,7 @@ const BulkManage = () => {
   };
 
   return (
-    <div>
+    <div className={styles.bulkWrapper}>
       <ToastContainer />
       <input type="file" ref={fileRef} accept=".csv" />
       <button onClick={handleUpload}>Upload</button>

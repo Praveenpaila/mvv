@@ -1,7 +1,3 @@
-/* ========================= */
-/* LAYOUT WRAPPER */
-/* ========================= */
-
 .layout {
   width: 100%;
   min-height: 100vh;
@@ -9,73 +5,13 @@
   overflow-x: hidden;
 }
 
-/* ========================= */
-/* SIDEBAR (DESKTOP DEFAULT) */
-/* ========================= */
-
-.sidebar {
-  width: 300px;
-  height: calc(100vh - 64px);
-  background-color: #020617;
-  color: #e5e7eb;
-  position: fixed;
-  top: 64px;
-  left: 0;
-  padding: 20px 16px;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-
-/* TITLE */
-.title {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 18px;
-  color: #60a5fa;
-}
-
-/* MENU */
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.link {
-  text-decoration: none;
-  color: #cbd5e1;
-  font-size: 16px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  transition:
-    background-color 0.2s ease,
-    transform 0.1s ease;
-}
-
-.link:hover {
-  background-color: #1e293b;
-  transform: translateX(4px);
-  color: #ffffff;
-}
-
-.link.active {
-  background-color: #2563eb;
-  color: white;
-}
-
-/* ========================= */
-/* MAIN CONTENT */
-/* ========================= */
-
 .main {
-  margin-left: 300px; /* match sidebar */
-  padding: 24px;
-  padding-top: 80px; /* navbar space */
+  margin-left: 300px;
+  padding: 96px 24px 24px;
+  min-height: calc(100vh - 80px);
   box-sizing: border-box;
-  min-height: calc(100vh - 64px);
 }
 
-/* Scroll styling */
 .main::-webkit-scrollbar {
   width: 6px;
 }
@@ -85,52 +21,15 @@
   border-radius: 4px;
 }
 
-/* ========================= */
-/* TABLET */
-/* ========================= */
-
-@media (max-width: 768px) {
-  .sidebar {
-    width: 180px;
-  }
-
+@media (max-width: 1024px) {
   .main {
-    margin-left: 180px;
+    margin-left: 240px;
   }
 }
 
-/* ========================= */
-/* MOBILE (DROPDOWN MODE) */
-/* ========================= */
-
-@media (max-width: 600px) {
-  .sidebar {
-    position: relative; /* remove fixed */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-    display: none; /* hidden by default */
-    padding: 16px;
-    border-bottom: 1px solid #1e293b;
-  }
-
-  .sidebar.open {
-    display: block; /* show when toggled */
-  }
-
+@media (max-width: 768px) {
   .main {
-    margin-left: 0; /* remove sidebar space */
-    padding-top: 24px;
-  }
-  @media (max-width: 600px) {
-    .sidebar {
-      position: relative;
-      display: none;
-    }
-
-    .sidebar.open {
-      display: block;
-    }
+    margin-left: 0;
+    padding: 96px 12px 20px;
   }
 }

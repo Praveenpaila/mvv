@@ -2,6 +2,7 @@ const Order = require("../model/mkOrder");
 const MerchantOrder = require("../model/mkMerchantOrders");
 const Delivery = require("../model/mkDelivery");
 const DeliveryPerson = require("../model/mkDeliveryPerson");
+const { notifyOrderStatusChanged } = require("../utils/orderNotify");
 
 /**
  * Auto-assign a delivery person when all merchants have confirmed.
@@ -75,12 +76,26 @@ exports.toggleMerchantConfirmation = async (req, res) => {
 
     if (allConfirmed) {
       const mainOrderId = merchantOrder.orderId;
-      await Order.findByIdAndUpdate(mainOrderId, {
+      const updatedOrder = await Order.findByIdAndUpdate(
+        mainOrderId,
+        {
         orderStatus: "confirmed",
-      });
+        },
+        { new: true },
+      ).populate("user", "email userName phoneNumber");
       // Auto-assign delivery person when all checkboxes are checked
 
       await autoAssignDeliveryPerson(mainOrderId);
+
+      await notifyOrderStatusChanged({
+        order: updatedOrder,
+        previousStatus: "placed",
+        userEmail: updatedOrder?.user?.email || updatedOrder?.address?.email || "",
+        userName:
+          updatedOrder?.user?.userName || updatedOrder?.address?.firstName || "",
+        phoneNumber:
+          updatedOrder?.address?.phoneNumber || updatedOrder?.user?.phoneNumber || "",
+      });
     }
 
     return res.status(200).json({

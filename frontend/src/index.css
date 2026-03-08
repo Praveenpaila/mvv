@@ -1,0 +1,60 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --font-main: "Poppins", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --nav-height: 78px;
+  --bg: #f4f8f4;
+  --surface: #ffffff;
+  --surface-soft: #f8fbf8;
+  --text: #163020;
+  --muted: #5d7468;
+  --primary: #2f8f5b;
+  --primary-dark: #1f6d44;
+  --line: #d8e5dc;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow: 0 10px 28px rgba(22, 48, 32, 0.08);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  color: var(--text);
+  background:
+    radial-gradient(circle at 8% 0%, #e9f7ee 0, transparent 38%),
+    radial-gradient(circle at 95% 8%, #e2f2e8 0, transparent 34%),
+    var(--bg);
+  line-height: 1.45;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}

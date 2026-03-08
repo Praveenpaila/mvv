@@ -1,12 +1,17 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useSelector } from "react-redux";
+import colors from "../theme/colors";
 
-// MK Gold Coast logo (same as web app)
 const LOGO = require("../../assets/mkLogo.png");
 
-const Header = ({ navigation, setToken, token, title, showSearch = true }) => {
-  const cartCount = useSelector((state) => state.cart.cart).length;
+const Header = ({ navigation, token, showSearch = true }) => {
+  const cartCount = useSelector((state) =>
+    (state.cart.cart || []).reduce(
+      (total, item) => total + (Number(item.quantity) || 0),
+      0,
+    ),
+  );
 
   return (
     <View style={styles.header}>
@@ -17,7 +22,7 @@ const Header = ({ navigation, setToken, token, title, showSearch = true }) => {
           activeOpacity={0.7}
         >
           <Image source={LOGO} style={styles.logo} resizeMode="contain" />
-          <Text style={styles.logoText}>MK Gold Coast</Text>
+          <Text style={styles.logoText}>MVV</Text>
         </TouchableOpacity>
 
         <View style={styles.actions}>
@@ -28,7 +33,7 @@ const Header = ({ navigation, setToken, token, title, showSearch = true }) => {
                 onPress={() => navigation?.navigate?.("Main", { screen: "CartTab" })}
                 activeOpacity={0.7}
               >
-                <Text style={styles.icon}>🛒</Text>
+                <Text style={styles.icon}>{"\u{1F6D2}"}</Text>
                 {cartCount > 0 && (
                   <View style={styles.badge}>
                     <Text style={styles.badgeText}>
@@ -42,7 +47,7 @@ const Header = ({ navigation, setToken, token, title, showSearch = true }) => {
                 onPress={() => navigation?.navigate?.("Profile")}
                 activeOpacity={0.7}
               >
-                <Text style={styles.icon}>👤</Text>
+                <Text style={styles.icon}>{"\u{1F464}"}</Text>
               </TouchableOpacity>
             </>
           ) : (
@@ -63,7 +68,7 @@ const Header = ({ navigation, setToken, token, title, showSearch = true }) => {
           onPress={() => navigation?.navigate?.("Search", { q: "" })}
           activeOpacity={0.8}
         >
-          <Text style={styles.searchIcon}>🔍</Text>
+          <Text style={styles.searchIcon}>{"\u{1F50D}"}</Text>
           <Text style={styles.searchPlaceholder}>Search products...</Text>
         </TouchableOpacity>
       )}
@@ -73,23 +78,23 @@ const Header = ({ navigation, setToken, token, title, showSearch = true }) => {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#fff",
+    backgroundColor: "rgba(255,255,255,0.95)",
     paddingTop: 8,
     paddingBottom: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
-    shadowColor: "#000",
+    borderBottomColor: colors.border,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 2,
+    shadowRadius: 4,
     elevation: 2,
   },
   topRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   logoRow: {
     flexDirection: "row",
@@ -102,73 +107,75 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   logoText: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: "800",
-    color: "#10B981",
+    color: colors.text,
     marginLeft: 10,
-    letterSpacing: -0.5,
+    letterSpacing: 0.3,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F1F5F9",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: colors.surface,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
   },
   searchIcon: {
     fontSize: 18,
     marginRight: 10,
   },
   searchPlaceholder: {
-    fontSize: 15,
-    color: "#64748B",
+    fontSize: 14,
+    color: colors.textSecondary,
     flex: 1,
   },
   actions: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 12,
+    marginLeft: 10,
   },
   iconBtn: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 8,
+    marginLeft: 6,
+    borderRadius: 20,
   },
   icon: {
-    fontSize: 24,
+    fontSize: 21,
   },
   badge: {
     position: "absolute",
-    top: 6,
-    right: 6,
+    top: 5,
+    right: 4,
     backgroundColor: "#EF4444",
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
     borderColor: "#fff",
+    paddingHorizontal: 3,
   },
   badgeText: {
     color: "#fff",
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "700",
   },
   loginBtn: {
-    backgroundColor: "#10B981",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 12,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+    borderRadius: 999,
   },
   loginText: {
     color: "#fff",
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
   },
 });

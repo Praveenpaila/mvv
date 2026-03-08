@@ -7,8 +7,18 @@ const DeliveryPerson = require("../model/mkDeliveryPerson");
 const accessKey = process.env.KEY;
 
 /* ================= TOKEN ================= */
-const generateToken = (userId, role) => {
-  return jwt.sign({ userId, role }, accessKey, { expiresIn: "10h" });
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user._id,
+      role: user.role,
+      email: user.email || "",
+      userName: user.userName || user.username || "",
+      phoneNumber: user.phoneNumber || "",
+    },
+    accessKey,
+    { expiresIn: "10h" },
+  );
 };
 
 /* ================= LOGIN ================= */
@@ -81,7 +91,7 @@ exports.login = async (req, res) => {
       }
     }
 
-    const token = generateToken(user._id, user.role);
+    const token = generateToken(user);
 
     return res.status(200).json({
       success: true,
@@ -148,7 +158,7 @@ exports.signup = async (req, res) => {
       role: "user", // ✅ explicit
     });
 
-    const token = generateToken(newUser._id, newUser.role);
+    const token = generateToken(newUser);
 
     return res.status(201).json({
       success: true,

@@ -5,6 +5,8 @@ function formatINR(amount) {
 
 function prettyStatus(status) {
   const map = {
+    assigned: "Assigned",
+    picked_up: "Picked up",
     placed: "Placed",
     confirmed: "Confirmed",
     out_for_delivery: "Out for delivery",
@@ -63,7 +65,8 @@ function buildItemsTable(itemsObj) {
 
 function buildAddressBlock(address) {
   if (!address) return "";
-  const name = `${escapeHtml(address.firstName)} ${escapeHtml(address.secondName)}`.trim();
+  const name =
+    `${escapeHtml(address.firstName)} ${escapeHtml(address.secondName)}`.trim();
   const line2 = `Block ${escapeHtml(address.block)}, Floor ${escapeHtml(
     address.floor,
   )}, Room ${escapeHtml(address.roomNo)}`;
@@ -82,7 +85,7 @@ function wrapEmail({ title, subtitle, bodyHtml }) {
   return `
   <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;max-width:640px;margin:0 auto;padding:24px;">
     <div style="background:#10b981;border-radius:16px;padding:18px 20px;color:white;">
-      <div style="font-size:18px;font-weight:800;letter-spacing:-0.2px;">MK Gold Coast</div>
+      <div style="font-size:18px;font-weight:800;letter-spacing:-0.2px;">MVV</div>
       <div style="opacity:0.9;margin-top:4px;">${escapeHtml(subtitle || "")}</div>
     </div>
     <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;margin-top:14px;">
@@ -92,7 +95,7 @@ function wrapEmail({ title, subtitle, bodyHtml }) {
       ${bodyHtml}
     </div>
     <div style="color:#64748b;font-size:12px;margin-top:12px;text-align:center;">
-      © ${new Date().getFullYear()} MK Gold Coast
+      © ${new Date().getFullYear()} MVV
     </div>
   </div>
   `;
@@ -125,7 +128,7 @@ function buildOrderPlacedEmail({ order, userName }) {
   `;
 
   return {
-    subject: `Your MK Gold Coast order is placed (${orderId})`,
+    subject: `Your MVV order is placed (${orderId})`,
     html: wrapEmail({
       title: "Order placed",
       subtitle: "Invoice / Order confirmation",

@@ -8,7 +8,7 @@ const About = () => {
       <div className={styles.container}>
         {/* HEADER */}
         <div className={styles.header}>
-          <h1>About MK Gold Coast</h1>
+          <h1>About MVV</h1>
           <p>Fresh groceries delivered to your doorstep in minutes.</p>
         </div>
 
@@ -18,7 +18,7 @@ const About = () => {
           <div className={styles.text}>
             <h2>Who We Are</h2>
             <p>
-              MK Gold Coast is a fast and reliable online grocery delivery
+              MVV is a fast and reliable online grocery delivery
               platform inspired by modern quick-commerce services like Blinkit.
               We focus on delivering fresh fruits, vegetables, and daily
               essentials at lightning speed.
@@ -42,7 +42,7 @@ const About = () => {
 
           {/* RIGHT */}
           <div className={styles.imageBox}>
-            <img src={asset.mkLogo} alt="MK Gold Coast" />
+            <img src={asset.mkLogo} alt="MVV" />
           </div>
         </div>
       </div>
@@ -51,3 +51,4 @@ const About = () => {
 };
 
 export default About;
+

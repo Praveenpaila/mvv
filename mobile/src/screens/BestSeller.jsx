@@ -1,20 +1,25 @@
-import React from "react";
+import React, { useRef } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useSelector } from "react-redux";
 import DisplayProducts from "./DisplayProducts";
 import Footer from "../components/Footer";
+import { Title } from "../components/Title";
+import colors from "../theme/colors";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const BestSeller = ({ navigation }) => {
   const products = useSelector((state) => state.product.products);
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
 
   return (
     <ScrollView
+      ref={scrollRef}
       style={styles.wrapper}
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Best Sellers</Text>
-      <Text style={styles.subtitle}>Popular picks for you</Text>
+      <Title text1="Best" text2="Seller" />
       <View style={styles.grid}>
         {(products || []).length === 0 ? (
           <Text style={styles.empty}>No products found</Text>
@@ -34,29 +39,19 @@ const BestSeller = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  wrapper: { flex: 1, backgroundColor: "#F8FAFC" },
+  wrapper: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, paddingBottom: 100 },
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#1E293B",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#64748B",
-    marginTop: 4,
-    marginBottom: 20,
-  },
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
   empty: {
-    fontSize: 16,
-    color: "#64748B",
+    fontSize: 14,
+    color: colors.textSecondary,
     textAlign: "center",
-    marginTop: 40,
+    marginTop: 30,
+    width: "100%",
   },
 });
 

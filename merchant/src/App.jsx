@@ -1,16 +1,16 @@
-import React, { useEffect, useCallback, useState } from "react";
-import { Route, Routes } from "react-router";
-import Index from "./pages/merchant/Index";
-import Dashboard from "./components/admin/Dashboard";
-import AdminOrders from "./components/admin/AdminOrders";
-import Upload from "./components/admin/Upload";
-import ParticularItem from "./components/admin/ParticularItem";
-import BulkManage from "./components/admin/BulkMange";
-import Login from "./pages/auth/Login";
-import Signup from "./pages/auth/Signup";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Route, Routes, useLocation, useNavigate } from "react-router";
 import MerchantProtectedRoute from "./MerchantProtectedRoute";
 import api from "./api";
-import { useDispatch } from "react-redux";
+import AdminOrders from "./components/admin/AdminOrders";
+import BulkManage from "./components/admin/BulkMange";
+import Dashboard from "./components/admin/Dashboard";
+import ParticularItem from "./components/admin/ParticularItem";
+import Upload from "./components/admin/Upload";
+import Login from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+import Index from "./pages/merchant/Index";
 import { add } from "./store/product";
 
 const App = () => {
@@ -62,7 +62,13 @@ const App = () => {
     }
     // eslint-disable-next-line
   }, [token, role]);
-
+  const location=useLocation()
+  const navigate=useNavigate();
+  useEffect(() => {
+  if (location.pathname === "/") {
+    navigate("/merchant");
+  }
+}, [location.pathname, navigate]);
   return (
     <div>
       <Routes>

@@ -65,6 +65,7 @@ const ManageUsers = () => {
           <option value="merchant">Merchant</option>
           <option value="security">Security</option>
           <option value="admin">Admin</option>
+          <option value="user">user</option>
         </select>
 
         <input

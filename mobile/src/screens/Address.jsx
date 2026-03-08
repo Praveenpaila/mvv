@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   View,
@@ -13,10 +13,13 @@ import {
 import api from "../api/api";
 import Toast from "react-native-toast-message";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useScrollToTopOnFocus } from "../hooks/useScrollToTopOnFocus";
 
 const Address = ({ navigation }) => {
   const { token } = useAuth();
   const [firstName, setFirstName] = React.useState("");
+  const scrollRef = useRef(null);
+  useScrollToTopOnFocus(scrollRef);
 
   useEffect(() => {
     if (!token && navigation?.replace) navigation.replace("Login");
@@ -98,6 +101,7 @@ const Address = ({ navigation }) => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
     >
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}

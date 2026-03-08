@@ -1,6 +1,6 @@
-# MK Gold Coast - React Native App
+# MVV - React Native App
 
-Mobile app for the MK Gold Coast grocery platform. Mirrors the web app structure and connects to the same backend.
+Mobile app for the MVV grocery platform. Mirrors the web app structure and connects to the same backend.
 
 ## Safe Mode (Demo / Offline)
 
@@ -71,3 +71,4 @@ Then:
 - BestSeller - Best selling products
 - Search - Product search
 - About / Contact - Info pages
+

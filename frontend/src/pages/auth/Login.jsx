@@ -41,6 +41,7 @@ const Login = ({ setToken, setRole }) => {
       <ToastContainer autoClose={2000} />
       <div className={styles.card}>
         <Title text1="Login" text2="" />
+        <p className={styles.subtitle}>Welcome back to your grocery dashboard.</p>
 
         <form onSubmit={onSubmitHandler} className={styles.form}>
           <input type="email" placeholder="Email" ref={emailRef} required />
