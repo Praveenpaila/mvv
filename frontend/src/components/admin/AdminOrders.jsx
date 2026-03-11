@@ -235,8 +235,10 @@ const AdminOrders = () => {
             </div>
           )}
 
-          {/* DELIVERY ASSIGNMENT - only when order is confirmed */}
-          {order.orderStatus === "confirmed" && (
+          {/* DELIVERY ASSIGNMENT / STATUS - show after confirmation and beyond */}
+          {["confirmed", "out_for_delivery", "delivered"].includes(
+            order.orderStatus,
+          ) && (
             <div className={styles.deliverySection}>
               {orderDeliveries[order._id]?.delivery ? (
                 <div className={styles.deliveryAssigned}>

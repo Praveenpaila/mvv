@@ -1,9 +1,5 @@
 import styles from "./Nav.module.css";
-import {
-  Link,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { asset } from "../assets/assets";
 import { CiShoppingCart, CiSearch } from "react-icons/ci";
 import { CgProfile } from "react-icons/cg";
@@ -34,38 +30,44 @@ const Nav = ({ setToken }) => {
     setToken("");
   };
 
-  const handleSearchChange = useCallback((e) => {
-    const value = e.target.value;
+  const handleSearchChange = useCallback(
+    (e) => {
+      const value = e.target.value;
 
-    // Clear previous timer
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
+      // Clear previous timer
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
 
-    // Debounce: wait 500ms after user stops typing
-    debounceTimer.current = setTimeout(() => {
+      // Debounce: wait 500ms after user stops typing
+      debounceTimer.current = setTimeout(() => {
+        if (value.trim()) {
+          navigate(`/search?q=${encodeURIComponent(value.trim())}`);
+        } else {
+          // Clear search if input is empty
+          navigate("/search");
+        }
+      }, 500);
+    },
+    [navigate],
+  );
+
+  const handleSearchSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      const value = searchInputRef.current?.value || "";
       if (value.trim()) {
         navigate(`/search?q=${encodeURIComponent(value.trim())}`);
       } else {
-        // Clear search if input is empty
         navigate("/search");
       }
-    }, 500);
-  }, [navigate]);
-
-  const handleSearchSubmit = useCallback((e) => {
-    e.preventDefault();
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-
-    const value = searchInputRef.current?.value || "";
-    if (value.trim()) {
-      navigate(`/search?q=${encodeURIComponent(value.trim())}`);
-    } else {
-      navigate("/search");
-    }
-  }, [navigate]);
+    },
+    [navigate],
+  );
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -91,7 +93,7 @@ const Nav = ({ setToken }) => {
       {/* LEFT : LOGO */}
       <Link to="/" className={styles.logo}>
         <img src={asset.mkLogo} alt="MVV" />
-        <span>MVV</span>
+        {/* <span>MVV</span> */}
       </Link>
 
       {/* CENTER : SEARCH + LINKS */}
@@ -112,7 +114,7 @@ const Nav = ({ setToken }) => {
         {/* LINKS */}
         <div className={styles.links}>
           <Link to="/">Home</Link>
-          <Link to="/bestSeller">bestSeller</Link>
+          <Link to="/organic">organic</Link>
           <Link to="/about">About</Link>
           <Link to="/contact">Contact</Link>
         </div>
@@ -159,4 +161,3 @@ const Nav = ({ setToken }) => {
 };
 
 export default Nav;
-

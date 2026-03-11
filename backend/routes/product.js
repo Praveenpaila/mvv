@@ -16,7 +16,14 @@ const productListQuerySchema = Joi.object({
   q: Joi.string().trim().max(100),
   minPrice: Joi.number().min(0),
   maxPrice: Joi.number().min(0),
-  inStock: Joi.string().valid("true", "false"),
+  inStock: Joi.alternatives().try(
+    Joi.string().valid("true", "false"),
+    Joi.boolean(),
+  ),
+  isOrganic: Joi.alternatives().try(
+    Joi.string().valid("true", "false"),
+    Joi.boolean(),
+  ),
   merchantId: objectId,
   category: objectId,
 });
@@ -81,6 +88,7 @@ router.get("/cart", auth, controller.cart);
 router.get("/cart/:id", controller.getSingleProductDetails);
 router.post("/cart", auth, controller.addToCart);
 router.get("/home", controller.home);
+router.get("/organic", controller.organicBestSellers);
 router.get(
   "/home/:id",
   validate({ query: productListQuerySchema }),

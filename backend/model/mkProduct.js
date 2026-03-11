@@ -37,6 +37,11 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    isOrganic: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
 
     stock: {
       type: Number,

@@ -23,6 +23,14 @@ const { bumpProductsCacheVersion } = require("../utils/cacheVersion");
 // Root folder where mkGold exists
 const BASE_IMAGE_DIR = "C:/Users/paila praveen/OneDrive/Desktop/project/";
 
+function parseBooleanInput(value) {
+  if (value === undefined || value === null) return undefined;
+  const v = String(value).trim().toLowerCase();
+  if (["true", "1", "yes", "y"].includes(v)) return true;
+  if (["false", "0", "no", "n"].includes(v)) return false;
+  return undefined;
+}
+
 exports.getProducts = async (req, res) => {
   try {
     res.json({ message: "Products working" });
@@ -72,6 +80,7 @@ exports.bulkUploadProducts = async (req, res) => {
               stock,
               image,
               merchantId,
+              isOrganic,
             } = row;
 
             if (!name || !category || !packSize || !price || !mrp || !image) {
@@ -113,6 +122,10 @@ exports.bulkUploadProducts = async (req, res) => {
               });
             }
 
+            const organicFlag =
+              parseBooleanInput(isOrganic) ??
+              (/organic/i.test(String(name || "")) ? true : undefined);
+
             await ProductModel.create({
               name: name.trim(),
               description: description?.trim() || "",
@@ -123,7 +136,8 @@ exports.bulkUploadProducts = async (req, res) => {
               discount: Number(discount || 0),
               stock: Number(stock || 0),
               image: imageUrl,
-              merchantId: finalMerchantId, // ← dynamic
+              merchantId: finalMerchantId,
+              isOrganic: organicFlag ?? false,
             });
           } catch (err) {
             errors.push({
@@ -175,19 +189,30 @@ exports.products = async (req, res) => {
     const { id } = req.params;
     const filter = { category: id };
 
-    const minPrice = req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
-    const maxPrice = req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
+    const minPrice =
+      req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
+    const maxPrice =
+      req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
     if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) {
       filter.price = {};
       if (Number.isFinite(minPrice)) filter.price.$gte = minPrice;
       if (Number.isFinite(maxPrice)) filter.price.$lte = maxPrice;
     }
 
-    if (req.query?.inStock === "true") {
+    const inStockFlag = parseBooleanInput(req.query?.inStock);
+    if (inStockFlag === true) {
       filter.stock = { $gt: 0 };
     }
 
-    if (req.query?.merchantId && mongoose.Types.ObjectId.isValid(req.query.merchantId)) {
+    const organicFlag = parseBooleanInput(req.query?.isOrganic);
+    if (organicFlag !== undefined) {
+      filter.isOrganic = organicFlag;
+    }
+
+    if (
+      req.query?.merchantId &&
+      mongoose.Types.ObjectId.isValid(req.query.merchantId)
+    ) {
       filter.merchantId = req.query.merchantId;
     }
 
@@ -198,7 +223,8 @@ exports.products = async (req, res) => {
     const { paginating, skip, limit } = parsePagination(req.query);
 
     let query = ProductModel.find(filter);
-    if (paginating) query = query.sort({ createdAt: -1 }).skip(skip).limit(limit);
+    if (paginating)
+      query = query.sort({ createdAt: -1 }).skip(skip).limit(limit);
 
     const products = await query.lean();
 
@@ -220,23 +246,37 @@ exports.listProducts = async (req, res) => {
   try {
     const filter = {};
 
-    if (req.query?.category && mongoose.Types.ObjectId.isValid(req.query.category)) {
+    if (
+      req.query?.category &&
+      mongoose.Types.ObjectId.isValid(req.query.category)
+    ) {
       filter.category = req.query.category;
     }
 
-    const minPrice = req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
-    const maxPrice = req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
+    const minPrice =
+      req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
+    const maxPrice =
+      req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
     if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) {
       filter.price = {};
       if (Number.isFinite(minPrice)) filter.price.$gte = minPrice;
       if (Number.isFinite(maxPrice)) filter.price.$lte = maxPrice;
     }
 
-    if (req.query?.inStock === "true") {
+    const inStockFlag = parseBooleanInput(req.query?.inStock);
+    if (inStockFlag === true) {
       filter.stock = { $gt: 0 };
     }
 
-    if (req.query?.merchantId && mongoose.Types.ObjectId.isValid(req.query.merchantId)) {
+    const organicFlag = parseBooleanInput(req.query?.isOrganic);
+    if (organicFlag !== undefined) {
+      filter.isOrganic = organicFlag;
+    }
+
+    if (
+      req.query?.merchantId &&
+      mongoose.Types.ObjectId.isValid(req.query.merchantId)
+    ) {
       filter.merchantId = req.query.merchantId;
     }
 
@@ -263,6 +303,75 @@ exports.listProducts = async (req, res) => {
   }
 };
 
+/* ================= ORGANIC BEST SELLERS ================= */
+exports.organicBestSellers = async (req, res) => {
+  try {
+    const limitRaw = Number(req.query?.limit);
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0
+        ? Math.min(Math.floor(limitRaw), 50)
+        : 12;
+
+    const orders = await OrderModel.find({ orderStatus: "delivered" })
+      .select("items")
+      .lean();
+
+    const counts = new Map();
+    for (const order of orders) {
+      const items = order?.items || {};
+      for (const [productId, item] of Object.entries(items)) {
+        const qty = Number(item?.quantity) || 0;
+        if (qty <= 0) continue;
+        counts.set(productId, (counts.get(productId) || 0) + qty);
+      }
+    }
+
+    const sortedIds = Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([id]) => id)
+      .filter((id) => mongoose.Types.ObjectId.isValid(id));
+
+    let products = [];
+
+    if (sortedIds.length > 0) {
+      const candidateIds = sortedIds.slice(0, limit * 3);
+      const organic = await ProductModel.find({
+        _id: { $in: candidateIds },
+        isOrganic: true,
+      }).lean();
+
+      const byId = new Map(organic.map((p) => [String(p._id), p]));
+      for (const id of sortedIds) {
+        const product = byId.get(String(id));
+        if (product) products.push(product);
+        if (products.length >= limit) break;
+      }
+    }
+
+    if (products.length < limit) {
+      const existingIds = products.map((p) => p._id);
+      const fill = await ProductModel.find({
+        isOrganic: true,
+        _id: { $nin: existingIds },
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit - products.length)
+        .lean();
+      products = products.concat(fill);
+    }
+
+    return res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to load organic best sellers",
+    });
+  }
+};
+
 /* ================= ADD PRODUCT ================= */
 exports.addProduct = async (req, res) => {
   try {
@@ -275,6 +384,7 @@ exports.addProduct = async (req, res) => {
       Mrp,
       discount,
       stock,
+      isOrganic,
     } = req.body;
 
     let imageUrl = "";
@@ -296,6 +406,14 @@ exports.addProduct = async (req, res) => {
       });
     }
 
+    const organicFlag = parseBooleanInput(isOrganic);
+    if (isOrganic !== undefined && organicFlag === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid isOrganic value",
+      });
+    }
+
     await ProductModel.create({
       name,
       description,
@@ -307,6 +425,7 @@ exports.addProduct = async (req, res) => {
       stock,
       image: imageUrl,
       merchantId: req.user.userId,
+      ...(organicFlag !== undefined ? { isOrganic: organicFlag } : {}),
     });
     bumpProductsCacheVersion().catch(() => {});
 
@@ -444,14 +563,13 @@ exports.orders = async (req, res) => {
     if (req.query?.orderStatus && req.query.orderStatus !== "all") {
       filter.orderStatus = req.query.orderStatus;
     }
-    if (req.query?.paymentStatus) filter.paymentStatus = req.query.paymentStatus;
+    if (req.query?.paymentStatus)
+      filter.paymentStatus = req.query.paymentStatus;
 
     const { paginating, page, skip, limit } = parsePagination(req.query);
     const total = await OrderModel.countDocuments(filter);
 
-    let query = OrderModel.find(filter)
-      .sort({ createdAt: -1 })
-      .select("-__v");
+    let query = OrderModel.find(filter).sort({ createdAt: -1 }).select("-__v");
     if (paginating) query = query.skip(skip).limit(limit);
 
     const orders = await query.lean();
@@ -493,8 +611,12 @@ exports.order = async (req, res) => {
     if (req.query?.orderStatus && req.query.orderStatus !== "all") {
       filter.orderStatus = req.query.orderStatus;
     }
-    if (req.query?.paymentStatus) filter.paymentStatus = req.query.paymentStatus;
-    if (req.query?.userId && mongoose.Types.ObjectId.isValid(req.query.userId)) {
+    if (req.query?.paymentStatus)
+      filter.paymentStatus = req.query.paymentStatus;
+    if (
+      req.query?.userId &&
+      mongoose.Types.ObjectId.isValid(req.query.userId)
+    ) {
       filter.user = req.query.userId;
     }
 
@@ -767,9 +889,13 @@ exports.postOrder = async (req, res) => {
     await notifyOrderPlaced({
       order,
       userEmail: req.user.email || address?.email || userDoc?.email || "",
-      userName: req.user.userName || userDoc?.userName || address?.firstName || "",
+      userName:
+        req.user.userName || userDoc?.userName || address?.firstName || "",
       phoneNumber:
-        address?.phoneNumber || req.user.phoneNumber || userDoc?.phoneNumber || "",
+        address?.phoneNumber ||
+        req.user.phoneNumber ||
+        userDoc?.phoneNumber ||
+        "",
     });
 
     return res.status(201).json({
@@ -794,8 +920,10 @@ exports.search = async (req, res) => {
       name: { $regex: query, $options: "i" },
     };
 
-    const minPrice = req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
-    const maxPrice = req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
+    const minPrice =
+      req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
+    const maxPrice =
+      req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
     if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) {
       filter.price = {};
       if (Number.isFinite(minPrice)) filter.price.$gte = minPrice;
@@ -845,11 +973,11 @@ exports.changeStatus = async (req, res) => {
       const merchantOrders = await MerchantOrder.find({ orderId: id });
       if (merchantOrders.length > 0) {
         const allConfirmed = merchantOrders.every(
-          (mo) => mo.confirmed === true
+          (mo) => mo.confirmed === true,
         );
         if (!allConfirmed) {
           const confirmedCount = merchantOrders.filter(
-            (mo) => mo.confirmed === true
+            (mo) => mo.confirmed === true,
           ).length;
           return res.status(400).json({
             success: false,
@@ -903,7 +1031,9 @@ exports.changeStatus = async (req, res) => {
       userName:
         populated?.user?.userName || updatedOrder?.address?.firstName || "",
       phoneNumber:
-        updatedOrder?.address?.phoneNumber || populated?.user?.phoneNumber || "",
+        updatedOrder?.address?.phoneNumber ||
+        populated?.user?.phoneNumber ||
+        "",
     });
 
     return res.status(200).json({
@@ -931,6 +1061,7 @@ exports.updateProduct = async (req, res) => {
       price,
       Mrp,
       stock,
+      isOrganic,
     } = req.body;
 
     let product = await ProductModel.findById(id);
@@ -966,6 +1097,16 @@ exports.updateProduct = async (req, res) => {
     if (price !== undefined) product.price = Number(price);
     if (Mrp !== undefined) product.mrp = Number(Mrp);
     if (stock !== undefined) product.stock = Number(stock);
+    if (isOrganic !== undefined) {
+      const organicFlag = parseBooleanInput(isOrganic);
+      if (organicFlag === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid isOrganic value",
+        });
+      }
+      product.isOrganic = organicFlag;
+    }
 
     if (req.file) {
       const upload = await cloudinary.uploader.upload(req.file.path, {
@@ -1158,7 +1299,9 @@ exports.getMerchantOrders = async (req, res) => {
 
     const filtered = merchantOrders.filter((mo) => mo.orderId);
     const total = filtered.length;
-    const pageItems = paginating ? filtered.slice(skip, skip + limit) : filtered;
+    const pageItems = paginating
+      ? filtered.slice(skip, skip + limit)
+      : filtered;
 
     const formattedOrders = pageItems.map((mo) => ({
       merchantOrderId: mo._id,
