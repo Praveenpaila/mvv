@@ -8,7 +8,7 @@ import greenChilli from "./greenchilli.png";
 import ginger from "./ginger.png";
 import garlic from "./garlic.png";
 import beetroot from "./beetroot.png";
-import mkLogo from "./mkLogo.png";
+import mkLogo from "./mvv.png";
 
 import Upload from "./upload_area.png";
 
