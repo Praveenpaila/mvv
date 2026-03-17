@@ -91,15 +91,21 @@ app.use(
   cors({
     origin(origin, callback) {
       if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes("*")) {
+        return callback(null, true);
+      }
+
       if (allowedOrigins && allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
+
       const err = new Error("Not allowed by CORS");
       err.statusCode = 403;
       return callback(err);
     },
     credentials: true,
-  }),
+  })
 );
 
 app.use(express.urlencoded({ extended: true }));
