@@ -28,12 +28,12 @@ const Dashboard = () => {
             if (productsRes.data?.success && productsRes.data.products) {
               allProducts = [...allProducts, ...productsRes.data.products];
             }
-          } catch (err) {
+          } catch {
             // Skip if category has no products
           }
         }
         setProducts(allProducts);
-      } catch (err) {
+      } catch {
         toast.error("Failed to load dashboard data");
       } finally {
         setLoading(false);

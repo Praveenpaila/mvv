@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./Nav.module.css";
 import { useNavigate } from "react-router";
 
-const Nav = ({ setToken, setRole, toggleSidebar }) => {
+const Nav = ({ setToken, setRole, toggleSidebar, isSidebarOpen, menuButtonRef }) => {
   const navigate = useNavigate();
   return (
     <nav className={styles.nav}>
@@ -12,6 +12,9 @@ const Nav = ({ setToken, setRole, toggleSidebar }) => {
           type="button"
           className={styles.menuBtn}
           aria-label="Toggle sidebar"
+          aria-controls="admin-sidebar"
+          aria-expanded={Boolean(isSidebarOpen)}
+          ref={menuButtonRef}
           onClick={toggleSidebar}
         >
           Menu

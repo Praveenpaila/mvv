@@ -1,0 +1,361 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.9.2
+2 info using node@v22.17.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\paila praveen\OneDrive\Desktop\project\mvv\backend\.npmrc
+5 silly config load:file:C:\Users\paila praveen\.npmrc
+6 silly config load:file:C:\Users\paila praveen\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm install helmet compression hpp
+8 verbose argv "install" "helmet" "compression" "hpp"
+9 verbose logfile logs-max:10 dir:C:\Users\paila praveen\OneDrive\Desktop\project\mvv\backend\.npm-cache\_logs\2026-03-08T17_49_24_444Z-
+10 verbose logfile C:\Users\paila praveen\OneDrive\Desktop\project\mvv\backend\.npm-cache\_logs\2026-03-08T17_49_24_444Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+13 silly idealTree buildDeps
+14 silly fetch manifest helmet@*
+15 silly packumentCache full:https://registry.npmmirror.com/helmet cache-miss
+16 http fetch GET 200 https://registry.npmmirror.com/npm 714ms
+17 http fetch GET 200 https://registry.npmmirror.com/helmet 816ms (cache miss)
+18 silly packumentCache full:https://registry.npmmirror.com/helmet set size:55887 disposed:false
+19 silly fetch manifest compression@*
+20 silly packumentCache full:https://registry.npmmirror.com/compression cache-miss
+21 http fetch GET 200 https://registry.npmmirror.com/compression 483ms (cache miss)
+22 silly packumentCache full:https://registry.npmmirror.com/compression set size:17815 disposed:false
+23 silly fetch manifest hpp@*
+24 silly packumentCache full:https://registry.npmmirror.com/hpp cache-miss
+25 http fetch GET 200 https://registry.npmmirror.com/hpp 453ms (cache miss)
+26 silly packumentCache full:https://registry.npmmirror.com/hpp set size:6159 disposed:false
+27 silly placeDep ROOT compression@1.8.1 OK for: backend@1.0.0 want: *
+28 silly placeDep ROOT helmet@8.1.0 OK for: backend@1.0.0 want: *
+29 silly placeDep ROOT hpp@0.2.3 OK for: backend@1.0.0 want: *
+30 silly fetch manifest compressible@~2.0.18
+31 silly packumentCache full:https://registry.npmmirror.com/compressible cache-miss
+32 silly fetch manifest debug@2.6.9
+33 silly packumentCache full:https://registry.npmmirror.com/debug cache-miss
+34 silly fetch manifest negotiator@~0.6.4
+35 silly packumentCache full:https://registry.npmmirror.com/negotiator cache-miss
+36 silly fetch manifest type-is@^1.6.12
+37 silly packumentCache full:https://registry.npmmirror.com/type-is cache-miss
+38 http fetch GET 200 https://registry.npmmirror.com/debug 86ms (cache miss)
+39 silly packumentCache full:https://registry.npmmirror.com/debug set size:32036 disposed:false
+40 http fetch GET 200 https://registry.npmmirror.com/negotiator 240ms (cache miss)
+41 silly packumentCache full:https://registry.npmmirror.com/negotiator set size:10810 disposed:false
+42 http fetch GET 200 https://registry.npmmirror.com/type-is 253ms (cache miss)
+43 silly packumentCache full:https://registry.npmmirror.com/type-is set size:14881 disposed:false
+44 http fetch GET 200 https://registry.npmmirror.com/compressible 560ms (cache miss)
+45 silly packumentCache full:https://registry.npmmirror.com/compressible set size:9671 disposed:false
+46 silly placeDep ROOT compressible@2.0.18 OK for: compression@1.8.1 want: ~2.0.18
+47 silly placeDep node_modules/compression debug@2.6.9 OK for: compression@1.8.1 want: 2.6.9
+48 silly placeDep node_modules/compression negotiator@0.6.4 OK for: compression@1.8.1 want: ~0.6.4
+49 silly fetch manifest ms@2.0.0
+50 silly packumentCache full:https://registry.npmmirror.com/ms cache-miss
+51 http fetch GET 200 https://registry.npmmirror.com/ms 66ms (cache miss)
+52 silly packumentCache full:https://registry.npmmirror.com/ms set size:15985 disposed:false
+53 silly placeDep node_modules/hpp type-is@1.6.18 OK for: hpp@0.2.3 want: ^1.6.12
+54 silly fetch manifest media-typer@0.3.0
+55 silly packumentCache full:https://registry.npmmirror.com/media-typer cache-miss
+56 silly fetch manifest mime-types@~2.1.24
+57 silly packumentCache full:https://registry.npmmirror.com/mime-types cache-miss
+58 http fetch GET 200 https://registry.npmmirror.com/mime-types 81ms (cache miss)
+59 silly packumentCache full:https://registry.npmmirror.com/mime-types set size:21356 disposed:false
+60 http fetch GET 200 https://registry.npmmirror.com/media-typer 128ms (cache miss)
+61 silly packumentCache full:https://registry.npmmirror.com/media-typer set size:4263 disposed:false
+62 silly placeDep node_modules/compression ms@2.0.0 OK for: debug@2.6.9 want: 2.0.0
+63 silly placeDep node_modules/hpp media-typer@0.3.0 OK for: type-is@1.6.18 want: 0.3.0
+64 silly placeDep node_modules/hpp mime-types@2.1.35 OK for: type-is@1.6.18 want: ~2.1.24
+65 silly fetch manifest mime-db@1.52.0
+66 silly packumentCache full:https://registry.npmmirror.com/mime-db cache-miss
+67 http fetch GET 200 https://registry.npmmirror.com/mime-db 111ms (cache miss)
+68 silly packumentCache full:https://registry.npmmirror.com/mime-db set size:24206 disposed:false
+69 silly placeDep node_modules/hpp mime-db@1.52.0 OK for: mime-types@2.1.35 want: 1.52.0
+70 warn EBADENGINE Unsupported engine {
+70 warn EBADENGINE   package: 'parser@0.1.4',
+70 warn EBADENGINE   required: { node: '0.4-0.9' },
+70 warn EBADENGINE   current: { node: 'v22.17.0', npm: '10.9.2' }
+70 warn EBADENGINE }
+71 silly reify moves {}
+72 silly audit bulk request {
+72 silly audit   '@hapi/hoek': [ '9.3.0' ],
+72 silly audit   '@hapi/topo': [ '5.1.0' ],
+72 silly audit   '@mongodb-js/saslprep': [ '1.4.6' ],
+72 silly audit   '@redis/bloom': [ '1.2.0' ],
+72 silly audit   '@redis/client': [ '1.6.1' ],
+72 silly audit   '@redis/graph': [ '1.1.1' ],
+72 silly audit   '@redis/json': [ '1.0.7' ],
+72 silly audit   '@redis/search': [ '1.2.0' ],
+72 silly audit   '@redis/time-series': [ '1.1.0' ],
+72 silly audit   '@sideway/address': [ '4.1.5' ],
+72 silly audit   '@sideway/formula': [ '3.0.1' ],
+72 silly audit   '@sideway/pinpoint': [ '2.0.0' ],
+72 silly audit   '@types/webidl-conversions': [ '7.0.3' ],
+72 silly audit   '@types/whatwg-url': [ '13.0.0' ],
+72 silly audit   accepts: [ '2.0.0' ],
+72 silly audit   anymatch: [ '3.1.3' ],
+72 silly audit   'append-field': [ '1.0.0' ],
+72 silly audit   asynckit: [ '0.4.0' ],
+72 silly audit   axios: [ '1.13.5' ],
+72 silly audit   'balanced-match': [ '4.0.4' ],
+72 silly audit   'basic-auth': [ '2.0.1' ],
+72 silly audit   'safe-buffer': [ '5.1.2', '5.2.1' ],
+72 silly audit   bcryptjs: [ '3.0.3' ],
+72 silly audit   'binary-extensions': [ '2.3.0' ],
+72 silly audit   'body-parser': [ '2.2.2' ],
+72 silly audit   'brace-expansion': [ '5.0.3' ],
+72 silly audit   braces: [ '3.0.3' ],
+72 silly audit   bson: [ '7.2.0' ],
+72 silly audit   'buffer-equal-constant-time': [ '1.0.1' ],
+72 silly audit   'buffer-from': [ '1.1.2' ],
+72 silly audit   busboy: [ '1.6.0' ],
+72 silly audit   bytes: [ '3.1.2' ],
+72 silly audit   'call-bind-apply-helpers': [ '1.0.2' ],
+72 silly audit   'call-bound': [ '1.0.4' ],
+72 silly audit   chokidar: [ '3.6.0' ],
+72 silly audit   cloudinary: [ '2.9.0' ],
+72 silly audit   clsx: [ '2.1.1' ],
+72 silly audit   'cluster-key-slot': [ '1.1.2' ],
+72 silly audit   'combined-stream': [ '1.0.8' ],
+72 silly audit   'concat-stream': [ '2.0.0' ],
+72 silly audit   'content-disposition': [ '1.0.1' ],
+72 silly audit   'content-type': [ '1.0.5' ],
+72 silly audit   cookie: [ '0.7.2', '1.1.1' ],
+72 silly audit   'cookie-signature': [ '1.2.2' ],
+72 silly audit   cors: [ '2.8.6' ],
+72 silly audit   csv: [ '6.4.1' ],
+72 silly audit   'csv-generate': [ '4.5.0' ],
+72 silly audit   'csv-parse': [ '6.1.0' ],
+72 silly audit   'csv-parser': [ '3.2.0' ],
+72 silly audit   'csv-stringify': [ '6.6.0' ],
+72 silly audit   debug: [ '4.4.3', '2.6.9' ],
+72 silly audit   'delayed-stream': [ '1.0.0' ],
+72 silly audit   depd: [ '2.0.0' ],
+72 silly audit   dotenv: [ '17.3.1' ],
+72 silly audit   'dunder-proto': [ '1.0.1' ],
+72 silly audit   'ecdsa-sig-formatter': [ '1.0.11' ],
+72 silly audit   'ee-first': [ '1.1.1' ],
+72 silly audit   encodeurl: [ '2.0.0' ],
+72 silly audit   'es-define-property': [ '1.0.1' ],
+72 silly audit   'es-errors': [ '1.3.0' ],
+72 silly audit   'es-object-atoms': [ '1.1.1' ],
+72 silly audit   'es-set-tostringtag': [ '2.1.0' ],
+72 silly audit   'escape-html': [ '1.0.3' ],
+72 silly audit   etag: [ '1.8.1' ],
+72 silly audit   express: [ '5.2.1' ],
+72 silly audit   'express-rate-limit': [ '7.5.1' ],
+72 silly audit   'fill-range': [ '7.1.1' ],
+72 silly audit   finalhandler: [ '2.1.1' ],
+72 silly audit   'follow-redirects': [ '1.15.11' ],
+72 silly audit   'form-data': [ '4.0.5' ],
+72 silly audit   'mime-db': [ '1.52.0', '1.54.0' ],
+72 silly audit   'mime-types': [ '2.1.35', '3.0.2' ],
+72 silly audit   forwarded: [ '0.2.0' ],
+72 silly audit   fresh: [ '2.0.0' ],
+72 silly audit   fsevents: [ '2.3.3' ],
+72 silly audit   'function-bind': [ '1.1.2' ],
+72 silly audit   'generic-pool': [ '3.9.0' ],
+72 silly audit   'get-intrinsic': [ '1.3.0' ],
+72 silly audit   'get-proto': [ '1.0.1' ],
+72 silly audit   'glob-parent': [ '5.1.2' ],
+72 silly audit   gopd: [ '1.2.0' ],
+72 silly audit   'has-flag': [ '3.0.0' ],
+72 silly audit   'has-symbols': [ '1.1.0' ],
+72 silly audit   'has-tostringtag': [ '1.0.2' ],
+72 silly audit   hasown: [ '2.0.2' ],
+72 silly audit   'http-errors': [ '2.0.1' ],
+72 silly audit   'iconv-lite': [ '0.7.2' ],
+72 silly audit   'ignore-by-default': [ '1.0.1' ],
+72 silly audit   inherits: [ '2.0.4' ],
+72 silly audit   'ipaddr.js': [ '1.9.1' ],
+72 silly audit   'is-binary-path': [ '2.1.0' ],
+72 silly audit   'is-extglob': [ '2.1.1' ],
+72 silly audit   'is-glob': [ '4.0.3' ],
+72 silly audit   'is-number': [ '7.0.0' ],
+72 silly audit   'is-promise': [ '4.0.0' ],
+72 silly audit   joi: [ '17.13.3' ],
+72 silly audit   jsonwebtoken: [ '9.0.3' ],
+72 silly audit   jwa: [ '2.0.1' ],
+72 silly audit   jws: [ '4.0.1' ],
+72 silly audit   kareem: [ '3.2.0' ],
+72 silly audit   lodash: [ '4.17.23' ],
+72 silly audit   'lodash.includes': [ '4.3.0' ],
+72 silly audit   'lodash.isboolean': [ '3.0.3' ],
+72 silly audit   'lodash.isinteger': [ '4.0.4' ],
+72 silly audit   'lodash.isnumber': [ '3.0.3' ],
+72 silly audit   'lodash.isplainobject': [ '4.0.6' ],
+72 silly audit   'lodash.isstring': [ '4.0.1' ],
+72 silly audit   'lodash.once': [ '4.1.1' ],
+72 silly audit   'math-intrinsics': [ '1.1.0' ],
+72 silly audit   'media-typer': [ '1.1.0', '0.3.0' ],
+72 silly audit   'memory-pager': [ '1.5.0' ],
+72 silly audit   'merge-descriptors': [ '2.0.0' ],
+72 silly audit   minimatch: [ '10.2.2' ],
+72 silly audit   minimist: [ '1.2.8' ],
+72 silly audit   mkdirp: [ '0.5.6' ],
+72 silly audit   mongodb: [ '7.0.0' ],
+72 silly audit   'mongodb-connection-string-url': [ '7.0.1' ],
+72 silly audit   mongoose: [ '9.2.1' ],
+72 silly audit   morgan: [ '1.10.1' ],
+72 silly audit   ms: [ '2.0.0', '2.1.3' ],
+72 silly audit   'on-finished': [ '2.3.0', '2.4.1' ],
+72 silly audit   mpath: [ '0.9.0' ],
+72 silly audit   mquery: [ '6.0.0' ],
+72 silly audit   multer: [ '2.0.2' ],
+72 silly audit   'type-is': [ '1.6.18', '2.0.1' ],
+72 silly audit   negotiator: [ '1.0.0', '0.6.4' ],
+72 silly audit   nodemailer: [ '8.0.1' ],
+72 silly audit   nodemon: [ '3.1.13' ],
+72 silly audit   'normalize-path': [ '3.0.0' ],
+72 silly audit   'object-assign': [ '4.1.1' ],
+72 silly audit   'object-inspect': [ '1.13.4' ],
+72 silly audit   'on-headers': [ '1.1.0' ],
+72 silly audit   once: [ '1.4.0' ],
+72 silly audit   parser: [ '0.1.4' ],
+72 silly audit   parseurl: [ '1.3.3' ],
+72 silly audit   'path-to-regexp': [ '8.3.0' ],
+72 silly audit   picomatch: [ '2.3.1' ],
+72 silly audit   'proxy-addr': [ '2.0.7' ],
+72 silly audit   'proxy-from-env': [ '1.1.0' ],
+72 silly audit   'pstree.remy': [ '1.1.8' ],
+72 silly audit   punycode: [ '2.3.1' ],
+72 silly audit   qs: [ '6.15.0' ],
+72 silly audit   'range-parser': [ '1.2.1' ],
+72 silly audit   'raw-body': [ '3.0.2' ],
+72 silly audit   razorpay: [ '2.9.6' ],
+72 silly audit   react: [ '19.2.4' ],
+72 silly audit   'react-dom': [ '19.2.4' ],
+72 silly audit   'react-router': [ '7.13.0' ],
+72 silly audit   'react-router-dom': [ '7.13.0' ],
+72 silly audit   'react-toastify': [ '11.0.5' ],
+72 silly audit   'readable-stream': [ '3.6.2' ],
+72 silly audit   readdirp: [ '3.6.0' ],
+72 silly audit   redis: [ '4.7.1' ],
+72 silly audit   router: [ '2.2.0' ],
+72 silly audit   'safer-buffer': [ '2.1.2' ],
+72 silly audit   scheduler: [ '0.27.0' ],
+72 silly audit   semver: [ '7.7.4' ],
+72 silly audit   send: [ '1.2.1' ],
+72 silly audit   'serve-static': [ '2.2.1' ],
+72 silly audit   'set-cookie-parser': [ '2.7.2' ],
+72 silly audit   setprototypeof: [ '1.2.0' ],
+72 silly audit   'side-channel': [ '1.1.0' ],
+72 silly audit   'side-channel-list': [ '1.0.0' ],
+72 silly audit   'side-channel-map': [ '1.0.1' ],
+72 silly audit   'side-channel-weakmap': [ '1.0.2' ],
+72 silly audit   sift: [ '17.1.3' ],
+72 silly audit   'simple-update-notifier': [ '2.0.0' ],
+72 silly audit   'sparse-bitfield': [ '3.0.3' ],
+72 silly audit   statuses: [ '2.0.2' ],
+72 silly audit   'stream-transform': [ '3.4.0' ],
+72 silly audit   streamsearch: [ '1.1.0' ],
+72 silly audit   string_decoder: [ '1.3.0' ],
+72 silly audit   'supports-color': [ '5.5.0' ],
+72 silly audit   'to-regex-range': [ '5.0.1' ],
+72 silly audit   toidentifier: [ '1.0.1' ],
+72 silly audit   tokenizer: [ '0.1.0' ],
+72 silly audit   touch: [ '3.1.1' ],
+72 silly audit   tr46: [ '5.1.1' ],
+72 silly audit   typedarray: [ '0.0.6' ],
+72 silly audit   undefsafe: [ '2.0.5' ],
+72 silly audit   unpipe: [ '1.0.0' ],
+72 silly audit   'util-deprecate': [ '1.0.2' ],
+72 silly audit   vary: [ '1.1.2' ],
+72 silly audit   'webidl-conversions': [ '7.0.0' ],
+72 silly audit   'whatwg-url': [ '14.2.0' ],
+72 silly audit   wrappy: [ '1.0.2' ],
+72 silly audit   xtend: [ '4.0.2' ],
+72 silly audit   yallist: [ '4.0.0' ],
+72 silly audit   compression: [ '1.8.1' ],
+72 silly audit   helmet: [ '8.1.0' ],
+72 silly audit   hpp: [ '0.2.3' ],
+72 silly audit   compressible: [ '2.0.18' ]
+72 silly audit }
+73 verbose reify failed optional dependency C:\Users\paila praveen\OneDrive\Desktop\project\mvv\backend\node_modules\fsevents
+74 silly reify mark deleted [
+74 silly reify   'C:\\Users\\paila praveen\\OneDrive\\Desktop\\project\\mvv\\backend\\node_modules\\fsevents'
+74 silly reify ]
+75 http cache mime-db@https://registry.npmmirror.com/mime-db/-/mime-db-1.52.0.tgz 0ms (cache hit)
+76 http cache compressible@https://registry.npmmirror.com/compressible/-/compressible-2.0.18.tgz 0ms (cache hit)
+77 http cache compression@https://registry.npmmirror.com/compression/-/compression-1.8.1.tgz 0ms (cache hit)
+78 http cache mime-types@https://registry.npmmirror.com/mime-types/-/mime-types-2.1.35.tgz 0ms (cache hit)
+79 http cache type-is@https://registry.npmmirror.com/type-is/-/type-is-1.6.18.tgz 0ms (cache hit)
+80 http cache ms@https://registry.npmmirror.com/ms/-/ms-2.0.0.tgz 0ms (cache hit)
+81 http cache hpp@https://registry.npmmirror.com/hpp/-/hpp-0.2.3.tgz 0ms (cache hit)
+82 http cache helmet@https://registry.npmmirror.com/helmet/-/helmet-8.1.0.tgz 0ms (cache hit)
+83 http cache negotiator@https://registry.npmmirror.com/negotiator/-/negotiator-0.6.4.tgz 0ms (cache hit)
+84 http cache debug@https://registry.npmmirror.com/debug/-/debug-2.6.9.tgz 0ms (cache hit)
+85 http cache media-typer@https://registry.npmmirror.com/media-typer/-/media-typer-0.3.0.tgz 0ms (cache hit)
+86 silly tarball no local data for mime-db@https://registry.npmmirror.com/mime-db/-/mime-db-1.52.0.tgz. Extracting by manifest.
+87 silly tarball no local data for compressible@https://registry.npmmirror.com/compressible/-/compressible-2.0.18.tgz. Extracting by manifest.
+88 silly tarball no local data for compression@https://registry.npmmirror.com/compression/-/compression-1.8.1.tgz. Extracting by manifest.
+89 silly tarball no local data for mime-types@https://registry.npmmirror.com/mime-types/-/mime-types-2.1.35.tgz. Extracting by manifest.
+90 silly tarball no local data for type-is@https://registry.npmmirror.com/type-is/-/type-is-1.6.18.tgz. Extracting by manifest.
+91 silly tarball no local data for ms@https://registry.npmmirror.com/ms/-/ms-2.0.0.tgz. Extracting by manifest.
+92 silly tarball no local data for hpp@https://registry.npmmirror.com/hpp/-/hpp-0.2.3.tgz. Extracting by manifest.
+93 silly tarball no local data for helmet@https://registry.npmmirror.com/helmet/-/helmet-8.1.0.tgz. Extracting by manifest.
+94 silly tarball no local data for negotiator@https://registry.npmmirror.com/negotiator/-/negotiator-0.6.4.tgz. Extracting by manifest.
+95 silly tarball no local data for debug@https://registry.npmmirror.com/debug/-/debug-2.6.9.tgz. Extracting by manifest.
+96 silly tarball no local data for media-typer@https://registry.npmmirror.com/media-typer/-/media-typer-0.3.0.tgz. Extracting by manifest.
+97 http fetch POST 404 https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk 59ms
+98 silly audit bulk request failed [object Object]
+99 http fetch POST 404 https://registry.npmmirror.com/-/npm/v1/security/audits/quick 50ms
+100 verbose audit error HttpErrorGeneral: 404 Not Found - POST https://registry.npmmirror.com/-/npm/v1/security/audits/quick - [NOT_IMPLEMENTED] /-/npm/v1/security/* not implemented yet
+100 verbose audit error     at C:\Program Files\nodejs\node_modules\npm\node_modules\npm-registry-fetch\lib\check-response.js:103:15
+100 verbose audit error     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+100 verbose audit error     at async [getReport] (C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\arborist\lib\audit-report.js:336:21)
+100 verbose audit error     at async AuditReport.run (C:\Program Files\nodejs\node_modules\npm\node_modules\@npmcli\arborist\lib\audit-report.js:106:19) {
+100 verbose audit error   headers: [Object: null prototype] {
+100 verbose audit error     server: [ 'Tengine' ],
+100 verbose audit error     date: [ 'Sun, 08 Mar 2026 17:49:29 GMT' ],
+100 verbose audit error     'content-type': [ 'application/json' ],
+100 verbose audit error     'transfer-encoding': [ 'chunked' ],
+100 verbose audit error     connection: [ 'keep-alive' ],
+100 verbose audit error     'strict-transport-security': [ 'max-age=5184000' ],
+100 verbose audit error     via: [ 'cache11.in9[,404666]' ],
+100 verbose audit error     'timing-allow-origin': [ '*' ],
+100 verbose audit error     eagleid: [ '81e3ce9f17729921692576396e' ],
+100 verbose audit error     'x-fetch-attempts': [ '1' ]
+100 verbose audit error   },
+100 verbose audit error   statusCode: 404,
+100 verbose audit error   code: 'E404',
+100 verbose audit error   method: 'POST',
+100 verbose audit error   uri: 'https://registry.npmmirror.com/-/npm/v1/security/audits/quick',
+100 verbose audit error   body: {
+100 verbose audit error     error: '[NOT_IMPLEMENTED] /-/npm/v1/security/* not implemented yet'
+100 verbose audit error   },
+100 verbose audit error   pkgid: undefined
+100 verbose audit error }
+101 silly audit error [object Object]
+102 silly audit report null
+103 http fetch GET 200 https://cdn.npmmirror.com/packages/negotiator/0.6.4/negotiator-0.6.4.tgz 943ms (cache miss)
+104 http fetch GET 200 https://cdn.npmmirror.com/packages/compressible/2.0.18/compressible-2.0.18.tgz 957ms (cache miss)
+105 http fetch GET 200 https://cdn.npmmirror.com/packages/mime-types/2.1.35/mime-types-2.1.35.tgz 960ms (cache miss)
+106 http fetch GET 200 https://cdn.npmmirror.com/packages/ms/2.0.0/ms-2.0.0.tgz 977ms (cache miss)
+107 http fetch GET 200 https://cdn.npmmirror.com/packages/hpp/0.2.3/hpp-0.2.3.tgz 984ms (cache miss)
+108 http fetch GET 200 https://cdn.npmmirror.com/packages/type-is/1.6.18/type-is-1.6.18.tgz 990ms (cache miss)
+109 http fetch GET 200 https://cdn.npmmirror.com/packages/mime-db/1.52.0/mime-db-1.52.0.tgz 1000ms (cache miss)
+110 http fetch GET 200 https://cdn.npmmirror.com/packages/helmet/8.1.0/helmet-8.1.0.tgz 1004ms (cache miss)
+111 http fetch GET 200 https://cdn.npmmirror.com/packages/compression/1.8.1/compression-1.8.1.tgz 1045ms (cache miss)
+112 http fetch GET 200 https://cdn.npmmirror.com/packages/media-typer/0.3.0/media-typer-0.3.0.tgz 1087ms (cache miss)
+113 http fetch GET 200 https://cdn.npmmirror.com/packages/debug/2.6.9/debug-2.6.9.tgz 1140ms (cache miss)
+114 silly ADD node_modules/compressible
+115 silly ADD node_modules/hpp
+116 silly ADD node_modules/hpp/node_modules/mime-db
+117 silly ADD node_modules/hpp/node_modules/mime-types
+118 silly ADD node_modules/hpp/node_modules/media-typer
+119 silly ADD node_modules/hpp/node_modules/type-is
+120 silly ADD node_modules/helmet
+121 silly ADD node_modules/compression
+122 silly ADD node_modules/compression/node_modules/ms
+123 silly ADD node_modules/compression/node_modules/negotiator
+124 silly ADD node_modules/compression/node_modules/debug
+125 silly ADD
+126 verbose cwd C:\Users\paila praveen\OneDrive\Desktop\project\mvv\backend
+127 verbose os Windows_NT 10.0.26200
+128 verbose node v22.17.0
+129 verbose npm  v10.9.2
+130 notice
+130 notice New major version of npm available! 10.9.2 -> 11.11.0
+130 notice Changelog: https://github.com/npm/cli/releases/tag/v11.11.0
+130 notice To update run: npm install -g npm@11.11.0
+130 notice  { force: true, [Symbol(proc-log.meta)]: true }
+131 verbose exit 0
+132 info ok

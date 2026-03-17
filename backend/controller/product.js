@@ -9,16 +9,27 @@ const fs = require("fs");
 const CartModel = require("../model/mkCart");
 const path = require("path");
 const csv = require("csv-parser");
+const { Readable } = require("stream");
 const {
   notifyOrderPlaced,
   notifyOrderStatusChanged,
 } = require("../utils/orderNotify");
 const mongoose = require("mongoose");
+const { parsePagination } = require("../utils/pagination");
+const { bumpProductsCacheVersion } = require("../utils/cacheVersion");
 // bulk
 // BASE PROJECT PATH (ENDS WITH /)
 
 // Root folder where mkGold exists
 const BASE_IMAGE_DIR = "C:/Users/paila praveen/OneDrive/Desktop/project/";
+
+function parseBooleanInput(value) {
+  if (value === undefined || value === null) return undefined;
+  const v = String(value).trim().toLowerCase();
+  if (["true", "1", "yes", "y"].includes(v)) return true;
+  if (["false", "0", "no", "n"].includes(v)) return false;
+  return undefined;
+}
 
 exports.getProducts = async (req, res) => {
   try {
@@ -69,6 +80,7 @@ exports.bulkUploadProducts = async (req, res) => {
               stock,
               image,
               merchantId,
+              isOrganic,
             } = row;
 
             if (!name || !category || !packSize || !price || !mrp || !image) {
@@ -110,6 +122,10 @@ exports.bulkUploadProducts = async (req, res) => {
               });
             }
 
+            const organicFlag =
+              parseBooleanInput(isOrganic) ??
+              (/organic/i.test(String(name || "")) ? true : undefined);
+
             await ProductModel.create({
               name: name.trim(),
               description: description?.trim() || "",
@@ -120,7 +136,8 @@ exports.bulkUploadProducts = async (req, res) => {
               discount: Number(discount || 0),
               stock: Number(stock || 0),
               image: imageUrl,
-              merchantId: finalMerchantId, // ← dynamic
+              merchantId: finalMerchantId,
+              isOrganic: organicFlag ?? false,
             });
           } catch (err) {
             errors.push({
@@ -131,6 +148,7 @@ exports.bulkUploadProducts = async (req, res) => {
         }
 
         fs.unlinkSync(req.file.path);
+        bumpProductsCacheVersion().catch(() => {});
 
         return res.status(201).json({
           success: true,
@@ -169,7 +187,46 @@ exports.home = async (req, res) => {
 exports.products = async (req, res) => {
   try {
     const { id } = req.params;
-    const products = await ProductModel.find({ category: id });
+    const filter = { category: id };
+
+    const minPrice =
+      req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
+    const maxPrice =
+      req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
+    if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) {
+      filter.price = {};
+      if (Number.isFinite(minPrice)) filter.price.$gte = minPrice;
+      if (Number.isFinite(maxPrice)) filter.price.$lte = maxPrice;
+    }
+
+    const inStockFlag = parseBooleanInput(req.query?.inStock);
+    if (inStockFlag === true) {
+      filter.stock = { $gt: 0 };
+    }
+
+    const organicFlag = parseBooleanInput(req.query?.isOrganic);
+    if (organicFlag !== undefined) {
+      filter.isOrganic = organicFlag;
+    }
+
+    if (
+      req.query?.merchantId &&
+      mongoose.Types.ObjectId.isValid(req.query.merchantId)
+    ) {
+      filter.merchantId = req.query.merchantId;
+    }
+
+    if (req.query?.q && String(req.query.q).trim()) {
+      filter.name = { $regex: String(req.query.q).trim(), $options: "i" };
+    }
+
+    const { paginating, skip, limit } = parsePagination(req.query);
+
+    let query = ProductModel.find(filter);
+    if (paginating)
+      query = query.sort({ createdAt: -1 }).skip(skip).limit(limit);
+
+    const products = await query.lean();
 
     return res.status(200).json({
       success: true,
@@ -180,6 +237,137 @@ exports.products = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: err.message,
+    });
+  }
+};
+
+// GET /api/products?category=<id>&q=milk&minPrice=10&maxPrice=50&page=1&limit=20
+exports.listProducts = async (req, res) => {
+  try {
+    const filter = {};
+
+    if (
+      req.query?.category &&
+      mongoose.Types.ObjectId.isValid(req.query.category)
+    ) {
+      filter.category = req.query.category;
+    }
+
+    const minPrice =
+      req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
+    const maxPrice =
+      req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
+    if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) {
+      filter.price = {};
+      if (Number.isFinite(minPrice)) filter.price.$gte = minPrice;
+      if (Number.isFinite(maxPrice)) filter.price.$lte = maxPrice;
+    }
+
+    const inStockFlag = parseBooleanInput(req.query?.inStock);
+    if (inStockFlag === true) {
+      filter.stock = { $gt: 0 };
+    }
+
+    const organicFlag = parseBooleanInput(req.query?.isOrganic);
+    if (organicFlag !== undefined) {
+      filter.isOrganic = organicFlag;
+    }
+
+    if (
+      req.query?.merchantId &&
+      mongoose.Types.ObjectId.isValid(req.query.merchantId)
+    ) {
+      filter.merchantId = req.query.merchantId;
+    }
+
+    if (req.query?.q && String(req.query.q).trim()) {
+      filter.name = { $regex: String(req.query.q).trim(), $options: "i" };
+    }
+
+    const { paginating, skip, limit } = parsePagination(req.query);
+    let query = ProductModel.find(filter).sort({ createdAt: -1 });
+    if (paginating) query = query.skip(skip).limit(limit);
+
+    const products = await query.lean();
+
+    return res.status(200).json({
+      success: true,
+      message: "Products loaded successfully",
+      products,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+/* ================= ORGANIC BEST SELLERS ================= */
+exports.organicBestSellers = async (req, res) => {
+  try {
+    const limitRaw = Number(req.query?.limit);
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0
+        ? Math.min(Math.floor(limitRaw), 50)
+        : 12;
+
+    const orders = await OrderModel.find({ orderStatus: "delivered" })
+      .select("items")
+      .lean();
+
+    const counts = new Map();
+    for (const order of orders) {
+      const items = order?.items || {};
+      for (const [productId, item] of Object.entries(items)) {
+        const qty = Number(item?.quantity) || 0;
+        if (qty <= 0) continue;
+        counts.set(productId, (counts.get(productId) || 0) + qty);
+      }
+    }
+
+    const sortedIds = Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([id]) => id)
+      .filter((id) => mongoose.Types.ObjectId.isValid(id));
+
+    let products = [];
+
+    if (sortedIds.length > 0) {
+      const candidateIds = sortedIds.slice(0, limit * 3);
+      const organic = await ProductModel.find({
+        _id: { $in: candidateIds },
+        isOrganic: true,
+      }).lean();
+
+      const byId = new Map(organic.map((p) => [String(p._id), p]));
+      for (const id of sortedIds) {
+        const product = byId.get(String(id));
+        if (product) products.push(product);
+        if (products.length >= limit) break;
+      }
+    }
+
+    if (products.length < limit) {
+      const existingIds = products.map((p) => p._id);
+      const fill = await ProductModel.find({
+        isOrganic: true,
+        _id: { $nin: existingIds },
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit - products.length)
+        .lean();
+      products = products.concat(fill);
+    }
+
+    return res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to load organic best sellers",
     });
   }
 };
@@ -196,6 +384,7 @@ exports.addProduct = async (req, res) => {
       Mrp,
       discount,
       stock,
+      isOrganic,
     } = req.body;
 
     let imageUrl = "";
@@ -217,6 +406,14 @@ exports.addProduct = async (req, res) => {
       });
     }
 
+    const organicFlag = parseBooleanInput(isOrganic);
+    if (isOrganic !== undefined && organicFlag === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid isOrganic value",
+      });
+    }
+
     await ProductModel.create({
       name,
       description,
@@ -228,7 +425,9 @@ exports.addProduct = async (req, res) => {
       stock,
       image: imageUrl,
       merchantId: req.user.userId,
+      ...(organicFlag !== undefined ? { isOrganic: organicFlag } : {}),
     });
+    bumpProductsCacheVersion().catch(() => {});
 
     return res.status(201).json({
       success: true,
@@ -360,14 +559,42 @@ exports.orders = async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    const orders = await OrderModel.find({ user: userId })
-      .sort({ createdAt: -1 })
-      .select("-__v"); // remove unnecessary field
-    console.log("hojlafjl");
+    const filter = { user: userId };
+    if (req.query?.orderStatus && req.query.orderStatus !== "all") {
+      filter.orderStatus = req.query.orderStatus;
+    }
+    if (req.query?.paymentStatus)
+      filter.paymentStatus = req.query.paymentStatus;
+
+    const { paginating, page, skip, limit } = parsePagination(req.query);
+    const total = await OrderModel.countDocuments(filter);
+
+    let query = OrderModel.find(filter).sort({ createdAt: -1 }).select("-__v");
+    if (paginating) query = query.skip(skip).limit(limit);
+
+    const orders = await query.lean();
     return res.status(200).json({
       success: true,
       count: orders.length,
+      total,
       orders,
+      filters: {
+        orderStatus: req.query?.orderStatus || "all",
+        paymentStatus: req.query?.paymentStatus || null,
+      },
+      pagination: paginating
+        ? (() => {
+            const totalPages = Math.max(Math.ceil(total / limit), 1);
+            return {
+              page,
+              limit,
+              total,
+              totalPages,
+              hasNext: page < totalPages,
+              hasPrev: page > 1,
+            };
+          })()
+        : null,
     });
   } catch (err) {
     return res.status(500).json({
@@ -380,8 +607,79 @@ exports.orders = async (req, res) => {
 /* ================= ADMIN ORDERS ================= */
 exports.order = async (req, res) => {
   try {
-    const orders = await OrderModel.find().sort({ createdAt: -1 });
-    return res.status(200).json({ success: true, orders });
+    const filter = {};
+    if (req.query?.orderStatus && req.query.orderStatus !== "all") {
+      filter.orderStatus = req.query.orderStatus;
+    }
+    if (req.query?.paymentStatus)
+      filter.paymentStatus = req.query.paymentStatus;
+    if (
+      req.query?.userId &&
+      mongoose.Types.ObjectId.isValid(req.query.userId)
+    ) {
+      filter.user = req.query.userId;
+    }
+
+    const q = (req.query?.q || "").trim();
+    if (q) {
+      const orConditions = [
+        { "address.firstName": { $regex: q, $options: "i" } },
+        { "address.secondName": { $regex: q, $options: "i" } },
+        { "address.phoneNumber": { $regex: q, $options: "i" } },
+      ];
+      if (mongoose.Types.ObjectId.isValid(q)) {
+        orConditions.push({ _id: new mongoose.Types.ObjectId(q) });
+      }
+      filter.$or = orConditions;
+    }
+
+    const { paginating, page, skip, limit } = parsePagination(req.query);
+    const total = await OrderModel.countDocuments(filter);
+
+    let query = OrderModel.find(filter).sort({ createdAt: -1 });
+    if (paginating) query = query.skip(skip).limit(limit);
+
+    const orders = await query.lean();
+    const statusCounts = await OrderModel.aggregate([
+      { $group: { _id: "$orderStatus", count: { $sum: 1 } } },
+    ]);
+    const statsByStatus = statusCounts.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {});
+
+    return res.status(200).json({
+      success: true,
+      orders,
+      total,
+      filters: {
+        orderStatus: req.query?.orderStatus || "all",
+        paymentStatus: req.query?.paymentStatus || null,
+        userId: req.query?.userId || null,
+        q,
+      },
+      pagination: paginating
+        ? (() => {
+            const totalPages = Math.max(Math.ceil(total / limit), 1);
+            return {
+              page,
+              limit,
+              total,
+              totalPages,
+              hasNext: page < totalPages,
+              hasPrev: page > 1,
+            };
+          })()
+        : null,
+      stats: {
+        total: Object.values(statsByStatus).reduce((sum, c) => sum + c, 0),
+        placed: statsByStatus.placed || 0,
+        confirmed: statsByStatus.confirmed || 0,
+        out_for_delivery: statsByStatus.out_for_delivery || 0,
+        delivered: statsByStatus.delivered || 0,
+        cancelled: statsByStatus.cancelled || 0,
+      },
+    });
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -591,9 +889,13 @@ exports.postOrder = async (req, res) => {
     await notifyOrderPlaced({
       order,
       userEmail: req.user.email || address?.email || userDoc?.email || "",
-      userName: req.user.userName || userDoc?.userName || address?.firstName || "",
+      userName:
+        req.user.userName || userDoc?.userName || address?.firstName || "",
       phoneNumber:
-        address?.phoneNumber || req.user.phoneNumber || userDoc?.phoneNumber || "",
+        address?.phoneNumber ||
+        req.user.phoneNumber ||
+        userDoc?.phoneNumber ||
+        "",
     });
 
     return res.status(201).json({
@@ -614,9 +916,25 @@ exports.search = async (req, res) => {
   try {
     const { query } = req.params;
 
-    const products = await ProductModel.find({
+    const filter = {
       name: { $regex: query, $options: "i" },
-    }).lean();
+    };
+
+    const minPrice =
+      req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
+    const maxPrice =
+      req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
+    if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) {
+      filter.price = {};
+      if (Number.isFinite(minPrice)) filter.price.$gte = minPrice;
+      if (Number.isFinite(maxPrice)) filter.price.$lte = maxPrice;
+    }
+
+    const { paginating, skip, limit } = parsePagination(req.query);
+    let qy = ProductModel.find(filter).sort({ createdAt: -1 });
+    if (paginating) qy = qy.skip(skip).limit(limit);
+
+    const products = await qy.lean();
 
     return res.status(200).json({
       success: true,
@@ -655,11 +973,11 @@ exports.changeStatus = async (req, res) => {
       const merchantOrders = await MerchantOrder.find({ orderId: id });
       if (merchantOrders.length > 0) {
         const allConfirmed = merchantOrders.every(
-          (mo) => mo.confirmed === true
+          (mo) => mo.confirmed === true,
         );
         if (!allConfirmed) {
           const confirmedCount = merchantOrders.filter(
-            (mo) => mo.confirmed === true
+            (mo) => mo.confirmed === true,
           ).length;
           return res.status(400).json({
             success: false,
@@ -713,7 +1031,9 @@ exports.changeStatus = async (req, res) => {
       userName:
         populated?.user?.userName || updatedOrder?.address?.firstName || "",
       phoneNumber:
-        updatedOrder?.address?.phoneNumber || populated?.user?.phoneNumber || "",
+        updatedOrder?.address?.phoneNumber ||
+        populated?.user?.phoneNumber ||
+        "",
     });
 
     return res.status(200).json({
@@ -741,6 +1061,7 @@ exports.updateProduct = async (req, res) => {
       price,
       Mrp,
       stock,
+      isOrganic,
     } = req.body;
 
     let product = await ProductModel.findById(id);
@@ -776,6 +1097,16 @@ exports.updateProduct = async (req, res) => {
     if (price !== undefined) product.price = Number(price);
     if (Mrp !== undefined) product.mrp = Number(Mrp);
     if (stock !== undefined) product.stock = Number(stock);
+    if (isOrganic !== undefined) {
+      const organicFlag = parseBooleanInput(isOrganic);
+      if (organicFlag === undefined) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid isOrganic value",
+        });
+      }
+      product.isOrganic = organicFlag;
+    }
 
     if (req.file) {
       const upload = await cloudinary.uploader.upload(req.file.path, {
@@ -786,6 +1117,7 @@ exports.updateProduct = async (req, res) => {
     }
 
     await product.save();
+    bumpProductsCacheVersion().catch(() => {});
 
     return res.status(200).json({
       success: true,
@@ -815,6 +1147,7 @@ exports.deleteProduct = async (req, res) => {
     }
 
     // Note: cart / orders keep their own snapshots, so we don't touch them here
+    bumpProductsCacheVersion().catch(() => {});
 
     return res.status(200).json({
       success: true,
@@ -924,6 +1257,7 @@ exports.bulkManage = async (req, res) => {
 
     // Remove uploaded file
     fs.unlinkSync(filePath);
+    bumpProductsCacheVersion().catch(() => {});
 
     return res.status(200).json({
       success: true,
@@ -942,15 +1276,34 @@ exports.bulkManage = async (req, res) => {
 exports.getMerchantOrders = async (req, res) => {
   try {
     const merchantId = req.user.userId;
+    const orderStatus = req.query?.orderStatus;
+    const q = (req.query?.q || "").trim();
+    const { paginating, page, skip, limit } = parsePagination(req.query);
+
+    const filter = {
+      merchantId: new mongoose.Types.ObjectId(merchantId),
+    };
+    if (q && mongoose.Types.ObjectId.isValid(q)) {
+      filter.orderId = new mongoose.Types.ObjectId(q);
+    }
 
     // Get merchant-specific orders
-    const merchantOrders = await MerchantOrder.find({
-      merchantId: new mongoose.Types.ObjectId(merchantId),
-    })
-      .populate("orderId") // get full order details
-      .sort({ createdAt: -1 });
+    const merchantOrders = await MerchantOrder.find(filter)
+      .populate({
+        path: "orderId",
+        match:
+          orderStatus && orderStatus !== "all" ? { orderStatus } : undefined,
+      })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    const formattedOrders = merchantOrders.map((mo) => ({
+    const filtered = merchantOrders.filter((mo) => mo.orderId);
+    const total = filtered.length;
+    const pageItems = paginating
+      ? filtered.slice(skip, skip + limit)
+      : filtered;
+
+    const formattedOrders = pageItems.map((mo) => ({
       merchantOrderId: mo._id,
       orderId: mo.orderId?._id,
       items: mo.items,
@@ -964,7 +1317,25 @@ exports.getMerchantOrders = async (req, res) => {
     return res.status(200).json({
       success: true,
       count: formattedOrders.length,
+      total,
       orders: formattedOrders,
+      filters: {
+        orderStatus: orderStatus || "all",
+        q,
+      },
+      pagination: paginating
+        ? (() => {
+            const totalPages = Math.max(Math.ceil(total / limit), 1);
+            return {
+              page,
+              limit,
+              total,
+              totalPages,
+              hasNext: page < totalPages,
+              hasPrev: page > 1,
+            };
+          })()
+        : null,
     });
   } catch (err) {
     return res.status(500).json({
@@ -974,19 +1345,183 @@ exports.getMerchantOrders = async (req, res) => {
   }
 };
 
+exports.bulkManageText = async (req, res) => {
+  try {
+    const csvText = req.body?.csv;
+    if (typeof csvText !== "string" || !csvText.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "CSV content is required",
+      });
+    }
+
+    const merchantId = req.user.userId;
+
+    const rows = [];
+    const errors = [];
+    const notFound = [];
+    let updatedCount = 0;
+
+    await new Promise((resolve, reject) => {
+      Readable.from([csvText])
+        .pipe(csv())
+        .on("data", (row) => {
+          const cleanRow = {};
+
+          Object.keys(row).forEach((key) => {
+            const cleanKey = key.trim().replace("\ufeff", "");
+            cleanRow[cleanKey] = row[key];
+          });
+
+          rows.push(cleanRow);
+        })
+        .on("end", resolve)
+        .on("error", reject);
+    });
+
+    if (!rows.length) {
+      return res.status(400).json({
+        success: false,
+        message: "CSV is empty",
+      });
+    }
+
+    for (const row of rows) {
+      const id = row.id?.trim();
+      const price = row.price?.trim();
+      const quantity = row.quantity?.trim();
+
+      if (!id || !price || !quantity) {
+        errors.push({ row, message: "Missing fields" });
+        continue;
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        errors.push({ id, message: "Invalid ObjectId format" });
+        continue;
+      }
+
+      const parsedPrice = Number(price);
+      const parsedQuantity = Number(quantity);
+
+      if (isNaN(parsedPrice) || isNaN(parsedQuantity)) {
+        errors.push({ id, message: "Price/Quantity must be numbers" });
+        continue;
+      }
+
+      const updatedProduct = await ProductModel.findOneAndUpdate(
+        {
+          _id: id,
+          merchantId: merchantId,
+        },
+        {
+          $set: {
+            price: parsedPrice,
+            stock: parsedQuantity,
+          },
+        },
+        { new: true },
+      );
+
+      if (!updatedProduct) {
+        notFound.push(id);
+        continue;
+      }
+
+      updatedCount++;
+    }
+
+    bumpProductsCacheVersion().catch(() => {});
+
+    return res.status(200).json({
+      success: true,
+      message: "Bulk update completed",
+      updatedCount,
+      notFound,
+      errors,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 exports.getMerchantStock = async (req, res) => {
   try {
     const merchantId = req.user.userId;
+    const q = (req.query?.q || "").trim();
+    const sort = (req.query?.sort || "updated_desc").trim();
+    const { paginating, page, skip, limit } = parsePagination(req.query);
 
     // Strict ObjectId matching (prevents casting issues)
-    const products = await ProductModel.find({
+    const filter = {
       merchantId: new mongoose.Types.ObjectId(merchantId),
-    });
+    };
+    if (q) {
+      filter.name = { $regex: q, $options: "i" };
+    }
+
+    const minPrice =
+      req.query?.minPrice !== undefined ? Number(req.query.minPrice) : null;
+    const maxPrice =
+      req.query?.maxPrice !== undefined ? Number(req.query.maxPrice) : null;
+    if (Number.isFinite(minPrice) || Number.isFinite(maxPrice)) {
+      filter.price = {};
+      if (Number.isFinite(minPrice)) filter.price.$gte = minPrice;
+      if (Number.isFinite(maxPrice)) filter.price.$lte = maxPrice;
+    }
+
+    if (req.query?.inStock === "true") {
+      filter.stock = { $gt: 0 };
+    }
+
+    let sortSpec = { updatedAt: -1 };
+    if (sort === "updated_asc") sortSpec = { updatedAt: 1 };
+    if (sort === "updated_desc") sortSpec = { updatedAt: -1 };
+    if (sort === "newest") sortSpec = { createdAt: -1 };
+    if (sort === "name_asc") sortSpec = { name: 1 };
+    if (sort === "name_desc") sortSpec = { name: -1 };
+    if (sort === "price_asc") sortSpec = { price: 1 };
+    if (sort === "price_desc") sortSpec = { price: -1 };
+    if (sort === "stock_asc") sortSpec = { stock: 1 };
+    if (sort === "stock_desc") sortSpec = { stock: -1 };
+
+    const total = await ProductModel.countDocuments(filter);
+    let query = ProductModel.find(filter).sort(sortSpec);
+    if (sort === "name_asc" || sort === "name_desc") {
+      // Case-insensitive ordering for names
+      query = query.collation({ locale: "en", strength: 2 });
+    }
+    if (paginating) query = query.skip(skip).limit(limit);
+    const products = await query.lean();
 
     return res.status(200).json({
       success: true,
       count: products.length,
+      total,
       products,
+      filters: {
+        q,
+        sort,
+        inStock: req.query?.inStock === "true",
+        minPrice: Number.isFinite(minPrice) ? minPrice : null,
+        maxPrice: Number.isFinite(maxPrice) ? maxPrice : null,
+      },
+      pagination: paginating
+        ? (() => {
+            const totalPages = Math.max(Math.ceil(total / limit), 1);
+            return {
+              page,
+              limit,
+              total,
+              totalPages,
+              hasNext: page < totalPages,
+              hasPrev: page > 1,
+            };
+          })()
+        : null,
     });
   } catch (err) {
     return res.status(500).json({

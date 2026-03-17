@@ -10,9 +10,18 @@
 
 /* ================= CONTAINER ================= */
 
+.page {
+  min-height: 100vh;
+  padding: 34px 0 44px;
+  background:
+    radial-gradient(900px 420px at 18% 0%, rgba(94, 53, 177, 0.14), transparent 60%),
+    radial-gradient(900px 520px at 92% 12%, rgba(22, 163, 74, 0.10), transparent 58%),
+    var(--bg);
+}
+
 .container {
   max-width: 900px; /* reduced width for tighter layout */
-  margin: 2.5rem auto 3rem;
+  margin: 0 auto;
   padding: 0 1rem;
   font-family: Inter, system-ui, -apple-system, sans-serif;
 }
@@ -27,14 +36,69 @@
   letter-spacing: -0.3px;
 }
 
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.toolbarLabel {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.toolbarSelect {
+  margin-left: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+.toolbarSelect:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(94, 53, 177, 0.2);
+}
+
+.pager {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.pagerBtn {
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(94, 53, 177, 0.35);
+  background: linear-gradient(135deg, #5e35b1, #4c2aa0);
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+  width: min(260px, 100%);
+}
+
+.pagerBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(94, 53, 177, 0.24);
+}
+
+.pagerBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ================= ORDER CARD ================= */
 
 .orderCard {
-  background: var(--card-bg);
+  background: rgba(255, 255, 255, 0.92);
   border-radius: 18px;
   padding: 1.2rem;
   margin-bottom: 1.6rem;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(17, 24, 39, 0.08);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -159,6 +223,31 @@
   accent-color: var(--primary);
 }
 
+.checkboxText {
+  display: inline-flex;
+  align-items: center;
+}
+
+.checkboxLabelBusy {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+.confirmSpinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(94, 53, 177, 0.22);
+  border-top-color: rgba(94, 53, 177, 0.95);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ================= STATUS COLORS ================= */
 
 .placed {
@@ -228,5 +317,11 @@
     text-align: left;
     font-size: 0.85rem;
     color: var(--text-light);
+  }
+
+  .toolbarSelect {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 8px;
   }
 }

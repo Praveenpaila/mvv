@@ -4,6 +4,7 @@ const DeliveryPerson = require("../model/mkDeliveryPerson");
 const User = require("../model/mkUser");
 const bcryptjs = require("bcryptjs");
 const { notifyOrderStatusChanged } = require("../utils/orderNotify");
+const { parsePagination } = require("../utils/pagination");
 
 // NEW CONTROLLER: getDeliveryPersons - Get all active delivery persons (Admin Only)
 exports.getDeliveryPersons = async (req, res) => {
@@ -222,8 +223,32 @@ exports.getMyDeliveries = async (req, res) => {
       });
     }
 
+    const filter = { deliveryPerson: deliveryPerson._id };
+    const status = req.query?.status;
+    if (status && status !== "all") {
+      const validStatuses = ["assigned", "picked_up", "out_for_delivery", "delivered"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid status filter",
+        });
+      }
+      filter.status = status;
+    }
+
+    const from = req.query?.from ? new Date(req.query.from) : null;
+    const to = req.query?.to ? new Date(req.query.to) : null;
+    if ((from && !Number.isNaN(from.getTime())) || (to && !Number.isNaN(to.getTime()))) {
+      filter.createdAt = {};
+      if (from && !Number.isNaN(from.getTime())) filter.createdAt.$gte = from;
+      if (to && !Number.isNaN(to.getTime())) filter.createdAt.$lte = to;
+    }
+
+    const { paginating, page, skip, limit } = parsePagination(req.query);
+    const total = await Delivery.countDocuments(filter);
+
     // Get deliveries assigned to this delivery person
-    const deliveries = await Delivery.find({ deliveryPerson: deliveryPerson._id })
+    let query = Delivery.find(filter)
       .populate("deliveryPerson", "name email phoneNumber vehicleNumber")
       .populate({
         path: "orderId",
@@ -240,9 +265,55 @@ exports.getMyDeliveries = async (req, res) => {
       })
       .sort({ createdAt: -1 });
 
+    if (paginating) query = query.skip(skip).limit(limit);
+
+    const deliveries = await query;
+
+    const statusCounts = await Delivery.aggregate([
+      { $match: { deliveryPerson: deliveryPerson._id } },
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+    ]);
+    const statsByStatus = statusCounts.reduce((acc, item) => {
+      acc[item._id] = item.count;
+      return acc;
+    }, {});
+    const active =
+      (statsByStatus.assigned || 0) +
+      (statsByStatus.picked_up || 0) +
+      (statsByStatus.out_for_delivery || 0);
+    const completed = statsByStatus.delivered || 0;
+    const totalAssigned = Object.values(statsByStatus).reduce(
+      (sum, c) => sum + c,
+      0,
+    );
+
     return res.status(200).json({
       success: true,
       deliveries,
+      total,
+      filters: {
+        status: status || "all",
+        from: req.query?.from || null,
+        to: req.query?.to || null,
+      },
+      pagination: paginating
+        ? (() => {
+            const totalPages = Math.max(Math.ceil(total / limit), 1);
+            return {
+              page,
+              limit,
+              total,
+              totalPages,
+              hasNext: page < totalPages,
+              hasPrev: page > 1,
+            };
+          })()
+        : null,
+      stats: {
+        total: totalAssigned,
+        active,
+        completed,
+      },
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });

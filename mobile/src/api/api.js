@@ -129,6 +129,15 @@ const api = {
       if (url === "/cart" || url === "/address" || url === "/order") {
         return mockResponse({ success: true, message: "Safe mode" });
       }
+      if (url === "/bulkManageText") {
+        return mockResponse({
+          success: true,
+          message: "Bulk update completed (safe mode)",
+          updatedCount: 0,
+          notFound: [],
+          errors: [],
+        });
+      }
     }
     return axiosInstance.post(url, data, config);
   },

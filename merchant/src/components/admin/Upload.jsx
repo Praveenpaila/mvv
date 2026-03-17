@@ -48,7 +48,7 @@ const Upload = () => {
       formData.append("discount", discountRef.current.value);
       formData.append("stock", stockRef.current.value);
 
-      const res = await api.post("/add-product", formData, {
+      await api.post("/add-product", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",

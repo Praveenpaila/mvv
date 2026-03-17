@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./Nav.module.css";
 import { useNavigate } from "react-router";
 
-const Nav = ({ setToken, setRole }) => {
+const Nav = ({ setToken, setRole, toggleSidebar, isSidebarOpen, menuButtonRef }) => {
   const navigate = useNavigate();
   const handleLogout = () => {
     setRole("");
@@ -16,6 +16,17 @@ const Nav = ({ setToken, setRole }) => {
     <nav className={styles.nav}>
       {/* LEFT */}
       <div className={styles.left}>
+        <button
+          type="button"
+          className={styles.menuBtn}
+          aria-label="Toggle menu"
+          aria-controls="merchant-sidebar"
+          aria-expanded={Boolean(isSidebarOpen)}
+          ref={menuButtonRef}
+          onClick={toggleSidebar}
+        >
+          Menu
+        </button>
         <span className={styles.brand}>MVV</span>
         <span className={styles.panel}>Merchant Panel</span>
       </div>
