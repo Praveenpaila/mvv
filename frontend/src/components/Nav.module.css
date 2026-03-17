@@ -26,6 +26,7 @@
   font-weight: 800;
   letter-spacing: 0.3px;
   flex-shrink: 0;
+  order: 1;
   border-radius: 50%;
 }
 
@@ -42,6 +43,8 @@
   gap: 18px;
   flex: 1;
   min-width: 0;
+  justify-content: center;
+  order: 2;
 }
 
 .links {
@@ -68,11 +71,67 @@
   color: var(--primary-dark);
 }
 
+.actionsWrap {
+  position: relative;
+  margin-left: auto;
+  order: 3;
+}
+
 .actions {
   display: flex;
   align-items: center;
   gap: 14px;
   flex-shrink: 0;
+}
+
+.menuButton {
+  font-size: 22px;
+  color: var(--text);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  transition: background 0.2s ease;
+  display: none;
+}
+
+.menuButton:hover {
+  background: #eaf5ef;
+}
+
+.mobileMenu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 10px;
+  left: auto;
+  min-width: 190px;
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 10px 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  flex-direction: column;
+  gap: 6px;
+  z-index: 1100;
+  border-radius: 12px;
+}
+
+.mobileMenu a {
+  text-decoration: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.mobileMenu a:hover {
+  background: #eaf5ef;
+  color: var(--primary-dark);
 }
 
 .icon {
@@ -209,13 +268,41 @@
 }
 
 @media (max-width: 768px) {
+  .nav {
+    height: auto;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .logo {
+    order: 1;
+  }
+
+  .actions {
+    order: 3;
+    margin-left: auto;
+  }
+
+  .center {
+    order: 2;
+    width: 100%;
+  }
+
   .logo span {
     display: none;
   }
 
+  .logo img {
+    width: 120px;
+    height: 56px;
+  }
+
   .search {
-    max-width: 240px;
+    max-width: none;
+    width: 100%;
     padding: 7px 10px;
+    display: flex;
   }
 
   .actions {
@@ -223,10 +310,19 @@
   }
 
   .icon,
-  .profileButton {
+  .profileButton,
+  .menuButton {
     width: 36px;
     height: 36px;
     font-size: 21px;
+  }
+
+  .menuButton {
+    display: grid;
+  }
+
+  .mobileMenu.open {
+    display: flex;
   }
 }
 
@@ -236,8 +332,13 @@
     padding: 0 10px;
   }
 
+  .logo img {
+    width: 96px;
+    height: 46px;
+  }
+
   .search {
-    max-width: 170px;
+    max-width: none;
   }
 
   .search input {

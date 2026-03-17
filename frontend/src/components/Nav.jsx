@@ -1,7 +1,8 @@
 import styles from "./Nav.module.css";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { asset } from "../assets/assets";
 import { CiShoppingCart, CiSearch } from "react-icons/ci";
+import { HiOutlineMenu } from "react-icons/hi";
 import { CgProfile } from "react-icons/cg";
 import { clearCart } from "../store/cart";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,12 +12,15 @@ const Nav = ({ setToken }) => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.cart);
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const query = useMemo(() => searchParams.get("q") || "", [searchParams]);
   const searchInputRef = useRef(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const debounceTimer = useRef(null);
   const profileRef = useRef(null);
+  const menuRef = useRef(null);
   const cartCount = cartItems.reduce(
     (total, item) => total + (Number(item.quantity) || 0),
     0,
@@ -74,6 +78,9 @@ const Nav = ({ setToken }) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setIsProfileOpen(false);
       }
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
     };
 
     document.addEventListener("pointerdown", handlePointerDown);
@@ -81,6 +88,10 @@ const Nav = ({ setToken }) => {
       document.removeEventListener("pointerdown", handlePointerDown);
     };
   }, []);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     return () => {
@@ -120,41 +131,68 @@ const Nav = ({ setToken }) => {
         </div>
       </div>
 
-      {/* RIGHT : ICONS */}
-      <div className={styles.actions}>
-        {/* PROFILE */}
-        <div className={styles.profile} ref={profileRef}>
+      {/* RIGHT : ICONS + MENU */}
+      <div className={styles.actionsWrap} ref={menuRef}>
+        <div className={styles.actions}>
+          {/* PROFILE */}
+          <div className={styles.profile} ref={profileRef}>
+            <button
+              type="button"
+              className={styles.profileButton}
+              onClick={() => setIsProfileOpen((prev) => !prev)}
+              aria-haspopup="menu"
+              aria-expanded={isProfileOpen}
+              aria-label="Profile menu"
+            >
+              <CgProfile />
+            </button>
+            <div
+              className={`${styles.dropdown} ${isProfileOpen ? styles.open : ""}`}
+              role="menu"
+            >
+              <Link to="/profile" onClick={() => setIsProfileOpen(false)}>
+                Profile
+              </Link>
+              <Link to="/orders" onClick={() => setIsProfileOpen(false)}>
+                Orders
+              </Link>
+              <Link to="/login" onClick={logoutHandler}>
+                Logout
+              </Link>
+            </div>
+          </div>
+
+          {/* CART */}
+          <Link to="/cart" className={styles.icon}>
+            <CiShoppingCart />
+            {cartCount > 0 && <span className={styles.badge}>{cartCount}</span>}
+          </Link>
           <button
             type="button"
-            className={styles.profileButton}
-            onClick={() => setIsProfileOpen((prev) => !prev)}
-            aria-haspopup="menu"
-            aria-expanded={isProfileOpen}
-            aria-label="Profile menu"
+            className={styles.menuButton}
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            aria-label="Menu"
+            aria-expanded={isMenuOpen}
           >
-            <CgProfile />
+            <HiOutlineMenu />
           </button>
-          <div
-            className={`${styles.dropdown} ${isProfileOpen ? styles.open : ""}`}
-            role="menu"
-          >
-            <Link to="/profile" onClick={() => setIsProfileOpen(false)}>
-              Profile
-            </Link>
-            <Link to="/orders" onClick={() => setIsProfileOpen(false)}>
-              Orders
-            </Link>
-            <Link to="/login" onClick={logoutHandler}>
-              Logout
-            </Link>
-          </div>
         </div>
 
-        {/* CART */}
-        <Link to="/cart" className={styles.icon}>
-          <CiShoppingCart />
-          {cartCount > 0 && <span className={styles.badge}>{cartCount}</span>}
-        </Link>
+        {/* MOBILE MENU */}
+        <div className={`${styles.mobileMenu} ${isMenuOpen ? styles.open : ""}`}>
+          <Link to="/" onClick={() => setIsMenuOpen(false)}>
+            Home
+          </Link>
+          <Link to="/organic" onClick={() => setIsMenuOpen(false)}>
+            organic
+          </Link>
+          <Link to="/about" onClick={() => setIsMenuOpen(false)}>
+            About
+          </Link>
+          <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
+            Contact
+          </Link>
+        </div>
       </div>
     </nav>
   );
