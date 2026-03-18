@@ -50,7 +50,7 @@ const productSchema = new mongoose.Schema(
     merchantId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "mkUser",
-      default: "696bb2d2f9fa73aeebf08673",
+      default: "69babba5b10a2515ecb07ccf",
     },
   },
   {
