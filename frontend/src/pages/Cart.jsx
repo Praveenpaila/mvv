@@ -15,12 +15,16 @@ const Cart = () => {
   const navigate = useNavigate();
 
   const cartRaw = useSelector((state) => state.cart.cart);
-  const cart = useMemo(() => (Array.isArray(cartRaw) ? cartRaw : []), [cartRaw]);
+  const cart = useMemo(
+    () => (Array.isArray(cartRaw) ? cartRaw : []),
+    [cartRaw],
+  );
   const addresses = useSelector((state) => state.address.address) || [];
 
   const [checkOutAddress, setCheckoutAddress] = useState(null);
   const [paymentType, setPaymentType] = useState("cash");
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const [total, setTotal] = useState(0);
   const [itemPrices, setItemPrices] = useState({}); // Track prices by item ID
   const handlePriceChange = useCallback((id, price) => {
@@ -139,12 +143,14 @@ const Cart = () => {
     if (loading) return;
 
     setLoading(true);
+    setLoadingMessage("Creating your order...");
 
     try {
-      const validItems = cart.filter(item => item && item._id);
+      const validItems = cart.filter((item) => item && item._id);
       if (validItems.length === 0) {
         toast.error("No valid products in cart");
         setLoading(false);
+        setLoadingMessage("");
         return;
       }
       const orderRes = await api.post(
@@ -174,20 +180,25 @@ const Cart = () => {
       // totalAmount is received from backend
 
       if (paymentType === "cash") {
+        setLoadingMessage("Finalizing your order...");
         dispatch(clearCart());
         toast.success("Order placed successfully");
         navigate("/buy-now");
         setLoading(false);
+        setLoadingMessage("");
         return;
       }
 
+      setLoadingMessage("Opening payment gateway...");
       const scriptLoaded = await loadScript();
       if (!scriptLoaded) {
         toast.error("Razorpay failed to load");
         setLoading(false);
+        setLoadingMessage("");
         return;
       }
 
+      setLoadingMessage("Preparing payment...");
       const paymentRes = await api.post(
         "/payment/create-order",
         { orderId },
@@ -197,11 +208,19 @@ const Cart = () => {
           },
         },
       );
+      if (!paymentRes?.data?.id || !paymentRes?.data?.amount) {
+        toast.error("Payment could not be started. Try again.");
+        setLoading(false);
+        setLoadingMessage("");
+        return;
+      }
 
-      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      const razorpayKey =
+        import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_SHwgaPZxmn05yq";
       if (!razorpayKey) {
         toast.error("Payment is not configured");
         setLoading(false);
+        setLoadingMessage("");
         return;
       }
 
@@ -217,7 +236,15 @@ const Cart = () => {
           email: checkOutAddress?.email || "guest@example.com",
           contact: String(checkOutAddress?.phoneNumber || "9999999999"),
         },
+        modal: {
+          ondismiss: () => {
+            setLoading(false);
+            setLoadingMessage("");
+          },
+        },
         handler: async function (response) {
+          setLoading(true);
+          setLoadingMessage("Verifying payment...");
           try {
             const verifyRes = await api.post(
               "/payment/verify",
@@ -240,6 +267,7 @@ const Cart = () => {
             toast.error("Verification error");
           } finally {
             setLoading(false);
+            setLoadingMessage("");
           }
         },
       };
@@ -249,30 +277,43 @@ const Cart = () => {
       rzp.on("payment.failed", function () {
         toast.error("Payment failed. Try again.");
         setLoading(false);
+        setLoadingMessage("");
       });
 
+      setLoadingMessage("Complete the payment in the popup...");
       rzp.open();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Order failed");
       setLoading(false);
+      setLoadingMessage("");
     }
   };
 
   return (
     <div className={styles.cartPage}>
+      {loading && (
+        <div className={styles.loadingOverlay} aria-live="polite">
+          <div className={styles.loadingCard}>
+            <span className={styles.spinner} />
+            <p>{loadingMessage || "Processing..."}</p>
+          </div>
+        </div>
+      )}
       <div className={styles.left}>
         <Title text1="Shopping" text2="Cart" />
         {cart.length === 0 ? (
           <p className={styles.empty}>Your cart is empty</p>
         ) : (
           <>
-            {cart.filter(item => item && item._id).map((item) => (
-              <DispayCartItems
-                key={item._id}
-                item={item}
-                onPriceChange={handlePriceChange}
-              />
-            ))}
+            {cart
+              .filter((item) => item && item._id)
+              .map((item) => (
+                <DispayCartItems
+                  key={item._id}
+                  item={item}
+                  onPriceChange={handlePriceChange}
+                />
+              ))}
           </>
         )}
       </div>
@@ -325,7 +366,7 @@ const Cart = () => {
 
         <div className={styles.summary}>
           <span>Total Amount</span>
-          <strong>₹{total}</strong>
+          <strong>Rs. {total}</strong>
         </div>
 
         <button
@@ -341,4 +382,3 @@ const Cart = () => {
 };
 
 export default Cart;
-
