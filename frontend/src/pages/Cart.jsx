@@ -215,8 +215,7 @@ const Cart = () => {
         return;
       }
 
-      const razorpayKey =
-        import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_SHwgaPZxmn05yq";
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
       if (!razorpayKey) {
         toast.error("Payment is not configured");
         setLoading(false);
