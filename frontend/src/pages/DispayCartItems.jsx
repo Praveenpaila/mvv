@@ -36,7 +36,7 @@ const DispayCartItems = ({ item, onPriceChange }) => {
     };
 
     fetchProduct();
-  }, [item._id, item.quantity, onPriceChange]);
+  }, [item._id]);
 
   const updateCart = async (newQty) => {
     if (!localStorage.getItem("token")) {

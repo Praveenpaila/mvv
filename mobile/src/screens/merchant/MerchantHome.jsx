@@ -80,10 +80,20 @@ export default function MerchantHome({ navigation }) {
               <Text style={s.actionTitle}>Add Product</Text>
               <Text style={s.actionSub}>Upload a new product</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={s.actionCard} onPress={() => navigation.navigate("MManage")}>
+              <Text style={s.actionIcon}>✏️</Text>
+              <Text style={s.actionTitle}>Manage Products</Text>
+              <Text style={s.actionSub}>Update price & stock</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={s.actionCard} onPress={() => navigation.navigate("MOrders")}>
               <Text style={s.actionIcon}>📋</Text>
               <Text style={s.actionTitle}>My Orders</Text>
               <Text style={s.actionSub}>View & confirm orders</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.actionCard} onPress={() => navigation.navigate("MBulk")}>
+              <Text style={s.actionIcon}>📄</Text>
+              <Text style={s.actionTitle}>Bulk Manage</Text>
+              <Text style={s.actionSub}>Paste CSV updates</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -134,8 +144,8 @@ const s = StyleSheet.create({
   sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   sectionTitle: { fontSize: 17, fontWeight: "700", color: "#1E293B", marginBottom: 12 },
   viewAll: { fontSize: 13, color: "#8B5CF6", fontWeight: "600" },
-  actionsGrid: { flexDirection: "row", gap: 12 },
-  actionCard: { flex: 1, backgroundColor: "#fff", borderRadius: 12, padding: 16, alignItems: "center", shadowColor: "#000", shadowOpacity: 0.07, shadowRadius: 6, elevation: 2 },
+  actionsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
+  actionCard: { width: "48%", backgroundColor: "#fff", borderRadius: 12, padding: 16, alignItems: "center", shadowColor: "#000", shadowOpacity: 0.07, shadowRadius: 6, elevation: 2 },
   actionIcon: { fontSize: 28, marginBottom: 8 },
   actionTitle: { fontSize: 13, fontWeight: "700", color: "#1E293B", textAlign: "center" },
   actionSub: { fontSize: 11, color: "#94A3B8", marginTop: 4, textAlign: "center" },

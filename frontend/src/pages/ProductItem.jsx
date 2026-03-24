@@ -29,17 +29,17 @@ const ProductItem = () => {
   }, [dispatch, catId]);
 
   const products = useSelector((state) => state.product.products);
+  const cart = useSelector((state) => state.cart.cart);
   const item = products.find((p) => p._id === id);
+
+  const cartItem = item ? cart.find((i) => i._id === item._id) : null;
+  const quantity = cartItem ? cartItem.quantity : 0;
 
   if (!item) {
     return <p className={styles.notFound}>Product not found</p>;
   }
 
   /* CART */
-  const cart = useSelector((state) => state.cart.cart);
-  const cartItem = cart.find((i) => i._id === item._id);
-  const quantity = cartItem ? cartItem.quantity : 0;
-
   const outOfStock = item.stock === 0;
 
   const updateCart = async (newQty) => {

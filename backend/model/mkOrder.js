@@ -100,5 +100,10 @@ const orderSchema = new mongoose.Schema(
   },
 );
 
+// Indexes for list queries (user/admin order views)
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ orderStatus: 1, createdAt: -1 });
+orderSchema.index({ paymentStatus: 1, createdAt: -1 });
+
 module.exports =
   mongoose.models.mkOrders || mongoose.model("mkOrders", orderSchema);

@@ -6,6 +6,40 @@ const api = axios.create({
   baseURL,
 });
 
+const getCacheKey = (url, config) => {
+  const token = localStorage.getItem("token") || "";
+  const params = config?.params || null;
+  return `${token}|${url}|${JSON.stringify(params)}`;
+};
+
+const getCache = new Map();
+
+api.cachedGet = async (
+  url,
+  config = {},
+  { ttlMs = 30_000, force = false, cacheKey } = {},
+) => {
+  const key = cacheKey || getCacheKey(url, config);
+  const now = Date.now();
+  const cached = getCache.get(key);
+
+  if (!force && cached && now - cached.timestamp < ttlMs) {
+    return cached.promise;
+  }
+
+  const promise = api.get(url, config).catch((err) => {
+    getCache.delete(key);
+    throw err;
+  });
+
+  getCache.set(key, { timestamp: now, promise });
+  return promise;
+};
+
+api.clearCache = () => {
+  getCache.clear();
+};
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");

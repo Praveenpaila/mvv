@@ -7,10 +7,15 @@ import styles from "./DeliveryDashboard.module.css";
 const DeliveryDashboard = () => {
   const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [updating, setUpdating] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const limit = 8;
+  const [hasNextPage, setHasNextPage] = useState(false);
   const [profileForm, setProfileForm] = useState({
     name: "",
     phoneNumber: "",
@@ -20,9 +25,14 @@ const DeliveryDashboard = () => {
   const userName = localStorage.getItem("userName") || "Rider";
 
   useEffect(() => {
-    fetchDeliveries();
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    setDeliveries([]);
+    fetchDeliveries({ nextPage: 1, reset: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter]);
 
   const fetchProfile = async () => {
     try {
@@ -36,7 +46,7 @@ const DeliveryDashboard = () => {
           isActive: res.data.deliveryPerson.isActive,
         });
       }
-    } catch (err) {
+    } catch {
       console.error("Failed to fetch profile");
     }
   };
@@ -57,17 +67,32 @@ const DeliveryDashboard = () => {
     }
   };
 
-  const fetchDeliveries = async () => {
+  const fetchDeliveries = async ({ nextPage, reset } = {}) => {
+    const pageToLoad = nextPage || page;
     try {
-      setLoading(true);
-      const res = await api.get("/delivery/my");
+      if (reset) setLoading(true);
+      else setLoadingMore(true);
+
+      const params = { page: pageToLoad, limit };
+      if (statusFilter !== "all") params.status = statusFilter;
+
+      const res = await api.cachedGet("/delivery/my", { params });
       if (res.data.success) {
-        setDeliveries(res.data.deliveries || []);
+        const incoming = res.data.deliveries || [];
+        setDeliveries((prev) => (reset ? incoming : [...prev, ...incoming]));
+        setPage(pageToLoad);
+
+        const apiHasNext =
+          typeof res.data.pagination?.hasNext === "boolean"
+            ? res.data.pagination.hasNext
+            : incoming.length === limit;
+        setHasNextPage(apiHasNext);
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to fetch deliveries");
     } finally {
-      setLoading(false);
+      if (reset) setLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -77,7 +102,9 @@ const DeliveryDashboard = () => {
       const res = await api.put(`/delivery/${deliveryId}`, { status });
       if (res.data.success) {
         toast.success(`Status updated to ${status.replace("_", " ")}`);
-        await fetchDeliveries();
+        api.clearCache?.();
+        setDeliveries([]);
+        await fetchDeliveries({ nextPage: 1, reset: true });
       }
     } catch (err) {
       toast.error(
@@ -278,6 +305,25 @@ const DeliveryDashboard = () => {
       {/* Deliveries List */}
       <div className={styles.deliveriesSection}>
         <h2 className={styles.sectionTitle}>My Deliveries</h2>
+        <div className={styles.toolbar}>
+          <label className={styles.toolbarLabel}>
+            Status{" "}
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setPage(1);
+                setStatusFilter(e.target.value);
+              }}
+              className={styles.toolbarSelect}
+            >
+              <option value="all">All</option>
+              <option value="assigned">Assigned</option>
+              <option value="picked_up">Picked Up</option>
+              <option value="out_for_delivery">Out for Delivery</option>
+              <option value="delivered">Delivered</option>
+            </select>
+          </label>
+        </div>
         {deliveries.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>📭</div>
@@ -384,6 +430,20 @@ const DeliveryDashboard = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {deliveries.length > 0 && hasNextPage && (
+          <div className={styles.pager}>
+            <button
+              className={`${styles.actionBtn} ${styles.pagerBtn}`}
+              onClick={() =>
+                fetchDeliveries({ nextPage: page + 1, reset: false })
+              }
+              disabled={loadingMore}
+            >
+              {loadingMore ? "Loading..." : "Load more"}
+            </button>
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Title } from "../components/Title";
 import DispayCartItems from "./DispayCartItems";
@@ -23,6 +23,9 @@ const Cart = () => {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [itemPrices, setItemPrices] = useState({}); // Track prices by item ID
+  const handlePriceChange = useCallback((id, price) => {
+    setItemPrices((prev) => ({ ...prev, [id]: price }));
+  }, []);
 
   /* ================= LOAD CART ================= */
   useEffect(() => {
@@ -195,8 +198,15 @@ const Cart = () => {
         },
       );
 
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      if (!razorpayKey) {
+        toast.error("Payment is not configured");
+        setLoading(false);
+        return;
+      }
+
       const options = {
-        key: "rzp_test_SHwgaPZxmn05yq",
+        key: razorpayKey,
         amount: Number(paymentRes.data.amount),
         currency: "INR",
         order_id: paymentRes.data.id,
@@ -260,15 +270,7 @@ const Cart = () => {
               <DispayCartItems
                 key={item._id}
                 item={item}
-                onPriceChange={(id, price) => {
-                  // Update price tracking whenever product data changes
-                  setItemPrices((prev) => {
-                    const newPrices = { ...prev, [id]: price };
-                    // Log for debugging
-                    console.debug("Item prices updated:", newPrices);
-                    return newPrices;
-                  });
-                }}
+                onPriceChange={handlePriceChange}
               />
             ))}
           </>

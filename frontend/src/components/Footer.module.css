@@ -5,7 +5,12 @@
   padding: 40px 32px 18px;
   box-sizing: border-box;
 }
-
+.image {
+  height: auto;
+  width: 200px;
+  /* background-color: red; */
+  object-fit: contain;
+}
 .top {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -16,7 +21,7 @@
 }
 
 .brand img {
-  width: 44px;
+  /* width: 44px; */
   margin-bottom: 12px;
 }
 

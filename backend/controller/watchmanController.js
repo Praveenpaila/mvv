@@ -1,6 +1,7 @@
 const Watchman = require("../model/watchman");
 const bcrypt = require("bcryptjs");
-const { pr } = require("../../deliveryImages/delivery");
+const DeliveryPerson = require("../model/mkDeliveryPerson");
+const mongoose = require("mongoose");
 
 exports.register = async (req, res) => {
   try {
@@ -43,17 +44,35 @@ exports.login = async (req, res) => {
 };
 
 exports.scanQR = async (req, res) => {
-  // Simulate QR scan lookup
-  const { qrValue } = req.body;
-  const db = {
-    DELIV12003: { name: "Ravi Kumar", image: "/delivery/ravi.jpg" },
-    DELIV456: { name: "Priya Singh", image: "/delivery/priya.jpg" },
-    2023000629: { name: "praveen", image: "/deliveryImages/PR.png" },
-  };
-  const person = db[qrValue] || null;
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).json({ error: "No delivery person found for this QR." });
+  try {
+    const qrValue = String(req.body?.qrValue || "").trim();
+    if (!qrValue) {
+      return res.status(400).json({ error: "qrValue is required." });
+    }
+
+    // Accept phone number scans (most common)
+    const normalizedPhone = qrValue.replace(/[^\d+]/g, "");
+
+    let person = await DeliveryPerson.findOne({
+      $or: [
+        { phoneNumber: normalizedPhone },
+        { phoneNumber: qrValue },
+        ...(mongoose.isValidObjectId(qrValue) ? [{ _id: qrValue }] : []),
+      ],
+      isActive: true,
+    }).select("name email phoneNumber");
+
+    if (!person) {
+      return res.status(404).json({ error: "No delivery person found for this QR." });
+    }
+
+    return res.json({
+      name: person.name,
+      email: person.email,
+      phoneNumber: person.phoneNumber,
+      image: null,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 };

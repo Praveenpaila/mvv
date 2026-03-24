@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import DisplayProducts from "./DisplayProducts";
 import { useEffect } from "react";
@@ -24,7 +24,7 @@ const Category = () => {
       }
     };
     getItems();
-  }, [dispatch]);
+  }, [dispatch, id]);
   // console.log(filteredProducts);
 
   return (
@@ -33,7 +33,7 @@ const Category = () => {
 
       <div className={styles.grid}>
         {products.map((item) => (
-          <DisplayProducts key={item.id} item={item} />
+          <DisplayProducts key={item._id} item={item} />
         ))}
       </div>
     </div>
