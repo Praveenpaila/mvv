@@ -25,18 +25,31 @@ exports.createOrder = async (req, res) => {
     // ===============================
     // Validate & Prepare Order Items
     // ===============================
-    for (const item of items) {
-      const productId = item._id || item.productId;
+    const normalizedItems = items.map((item) => ({
+      productId: item._id || item.productId,
+      quantity: Number(item.quantity),
+    }));
 
-      if (!productId || !mongoose.Types.ObjectId.isValid(productId)) {
+    for (const item of normalizedItems) {
+      if (!item.productId || !mongoose.Types.ObjectId.isValid(item.productId)) {
         return res.status(400).json({ message: "Invalid product ID" });
       }
-
       if (!item.quantity || item.quantity <= 0) {
         return res.status(400).json({ message: "Invalid quantity" });
       }
+    }
 
-      const product = await Product.findById(productId);
+    const productIds = normalizedItems.map((i) => i.productId);
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    if (products.length !== productIds.length) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const productMap = new Map(products.map((p) => [p._id.toString(), p]));
+
+    for (const item of normalizedItems) {
+      const product = productMap.get(item.productId.toString());
 
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
@@ -52,7 +65,6 @@ exports.createOrder = async (req, res) => {
         return res.status(400).json({ message: "Insufficient stock" });
       }
 
-      // Calculate total
       totalAmount += product.price * item.quantity;
 
       validatedItems.push({
@@ -63,10 +75,19 @@ exports.createOrder = async (req, res) => {
         quantity: Number(item.quantity),
         price: Number(product.price),
       });
+    }
 
-      // Deduct stock
-      product.stock -= item.quantity;
-      await product.save();
+    // Deduct stock in bulk for speed and consistency
+    const bulkOps = normalizedItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.productId, stock: { $gte: item.quantity } },
+        update: { $inc: { stock: -item.quantity } },
+      },
+    }));
+
+    const bulkResult = await Product.bulkWrite(bulkOps, { ordered: false });
+    if (bulkResult.modifiedCount !== normalizedItems.length) {
+      return res.status(400).json({ message: "Insufficient stock" });
     }
 
     // ===============================
@@ -94,7 +115,7 @@ exports.createOrder = async (req, res) => {
         phoneNumber: address.phoneNumber || 0,
       },
       paymentType: paymentType.toLowerCase(),
-      paymentStatus: paymentType === "online" ? "paid" : "pending",
+      paymentStatus: "pending",
       orderStatus: "placed",
       totalAmount,
     });
@@ -142,11 +163,13 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    await notifyOrderPlaced({
+    notifyOrderPlaced({
       order,
       userEmail: req.user.email || address.email,
       userName: req.user.userName || address.firstName,
       phoneNumber: order?.address?.phoneNumber || req.user.phoneNumber,
+    }).catch((err) => {
+      console.warn("ORDER NOTIFY ERROR:", err?.message || err);
     });
 
     return res.status(201).json({

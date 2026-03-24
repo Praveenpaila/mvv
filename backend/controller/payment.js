@@ -44,13 +44,17 @@ exports.verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false });
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(orderId, {
-      orderStatus: "confirmed",
-      paymentStatus: "paid",
-      paymentId: razorpay_payment_id,
-    }, { new: true }).populate("user", "email userName phoneNumber");
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        orderStatus: "confirmed",
+        paymentStatus: "paid",
+        paymentId: razorpay_payment_id,
+      },
+      { new: true },
+    ).populate("user", "email userName phoneNumber");
 
-    await notifyOrderStatusChanged({
+    notifyOrderStatusChanged({
       order: updatedOrder,
       previousStatus: "placed",
       userEmail: updatedOrder?.user?.email || updatedOrder?.address?.email || "",
@@ -58,6 +62,8 @@ exports.verifyPayment = async (req, res) => {
         updatedOrder?.user?.userName || updatedOrder?.address?.firstName || "",
       phoneNumber:
         updatedOrder?.address?.phoneNumber || updatedOrder?.user?.phoneNumber || "",
+    }).catch((err) => {
+      console.warn("PAYMENT NOTIFY ERROR:", err?.message || err);
     });
 
     res.json({ success: true });
