@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://mvv.onrender.com/api/$1"
+    }
+  ]
+}
