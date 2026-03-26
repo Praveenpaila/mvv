@@ -15,15 +15,27 @@ const SideBar = ({ open, sidebarRef, onNavigate }) => {
         <Link to="/merchant" className={styles.link} onClick={onNavigate}>
           Dashboard
         </Link>
-        <Link to="/merchant/upload" className={styles.link} onClick={onNavigate}>
+        <Link
+          to="/merchant/upload"
+          className={styles.link}
+          onClick={onNavigate}
+        >
           Upload Products
         </Link>
 
-        <Link to="/merchant/orders" className={styles.link} onClick={onNavigate}>
+        <Link
+          to="/merchant/orders"
+          className={styles.link}
+          onClick={onNavigate}
+        >
           Orders
         </Link>
 
-        <Link to="/merchant/manage" className={styles.link} onClick={onNavigate}>
+        <Link
+          to="/merchant/manage"
+          className={styles.link}
+          onClick={onNavigate}
+        >
           Manage Items
         </Link>
         <Link
@@ -32,9 +44,6 @@ const SideBar = ({ open, sidebarRef, onNavigate }) => {
           onClick={onNavigate}
         >
           Bulk manage
-        </Link>
-        <Link to="/merchant/report" className={styles.link} onClick={onNavigate}>
-          Report
         </Link>
       </nav>
     </aside>
